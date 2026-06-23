@@ -1,0 +1,83 @@
+/* src/index.css */
+/* madebutter. global styles + Tailwind v4 theme.
+   CSS variables below mirror src/theme/madebutterColors.js exactly.
+   The @theme block maps them into Tailwind utilities. */
+
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+
+:root {
+  --mb-surface-base: #FFFFFF;
+  --mb-surface-paper: #FAF8F2;
+  --mb-surface-cream: #FFF7E6;
+  --mb-surface-raised: #F5F1E8;
+  --mb-surface-line: rgba(22,20,18,0.08);
+  --mb-surface-line-strong: rgba(22,20,18,0.16);
+
+  --mb-text-primary: #161412;
+  --mb-text-secondary: #5E554C;
+  --mb-text-muted: #9A9188;
+  --mb-text-inverse: #FFFFFF;
+
+  --mb-accent-butter: #F6D66B;
+  --mb-accent-butter-hover: #F2B94B;
+  --mb-accent-butter-soft: #FFF1B8;
+  --mb-accent-toast: #B8792D;
+
+  --mb-dark-base: #0F0E0D;
+  --mb-dark-raised: #1A1714;
+  --mb-dark-line: rgba(255,255,255,0.10);
+  --mb-dark-text: #FFFDF8;
+  --mb-dark-muted: #C9BFAF;
+  --mb-dark-accent: #FFE08A;
+
+  --mb-cat-donuts: #F6D66B;
+  --mb-cat-kolaches: #B8792D;
+  --mb-cat-rolls: #D99A4E;
+  --mb-cat-vegan: #A8B89A;
+}
+
+@theme {
+  --color-surface-base: var(--mb-surface-base);
+  --color-surface-paper: var(--mb-surface-paper);
+  --color-surface-cream: var(--mb-surface-cream);
+  --color-surface-raised: var(--mb-surface-raised);
+
+  --color-ink: var(--mb-text-primary);
+  --color-ink-secondary: var(--mb-text-secondary);
+  --color-ink-muted: var(--mb-text-muted);
+  --color-ink-inverse: var(--mb-text-inverse);
+
+  --color-butter: var(--mb-accent-butter);
+  --color-butter-hover: var(--mb-accent-butter-hover);
+  --color-butter-soft: var(--mb-accent-butter-soft);
+  --color-toast: var(--mb-accent-toast);
+
+  --color-dark-base: var(--mb-dark-base);
+  --color-dark-raised: var(--mb-dark-raised);
+  --color-dark-text: var(--mb-dark-text);
+  --color-dark-accent: var(--mb-dark-accent);
+
+  --font-sans: "Inter Variable", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --tracking-logo: -0.035em;
+  --tracking-heading: -0.025em;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--mb-surface-base);
+  color: var(--mb-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::-webkit-scrollbar { width: 0; height: 0; }
