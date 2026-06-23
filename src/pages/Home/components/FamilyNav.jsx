@@ -1,5 +1,6 @@
 // src/pages/Home/components/FamilyNav.jsx
-// Centered, sticky category nav. Sits just under the top nav. Tapping a category
+// Centered, sticky category nav. Sticks flush to the top (the floating top nav
+// hides on scroll-down and layers above this on scroll-up). Tapping a category
 // smooth-scrolls to its band; active gets a butter dot. Mobile: horizontal scroll.
 import { useEffect, useState } from 'react';
 
@@ -26,8 +27,8 @@ export default function FamilyNav({ categories }) {
 
   return (
     <nav
-      className="sticky top-[57px] z-40 w-full border-b backdrop-blur"
-      style={{ background: 'rgba(255,255,255,0.88)', borderColor: 'var(--mb-surface-line)' }}
+      className="sticky top-0 z-40 w-full border-b"
+      style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', borderColor: 'var(--mb-surface-line)' }}
     >
       <div className="mx-auto flex w-[98%] justify-center gap-6 overflow-x-auto whitespace-nowrap py-3.5 sm:gap-8" style={{ scrollbarWidth: 'none' }}>
         {categories.map((c) => {

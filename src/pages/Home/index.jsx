@@ -1,5 +1,5 @@
 // src/pages/Home/index.jsx
-// Fixed top nav, hero slideshow, About section, sticky menu nav, menu bands, footer.
+// Transparent nav over hero, hero slideshow, About section, sticky menu nav, bands, footer.
 import { useState } from 'react';
 import { useMenu } from '../../data/useMenu';
 import TopNav from '../../components/Nav/TopNav';
@@ -27,7 +27,6 @@ export default function Home() {
   return (
     <div className="w-full">
       <TopNav />
-      <div className="h-[57px]" />
 
       <Hero onOrder={scrollToMenu} onSuggest={goSuggest} />
       <AboutSection />
