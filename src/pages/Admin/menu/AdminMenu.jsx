@@ -1,9 +1,85 @@
 // src/pages/Admin/menu/AdminMenu.jsx
-// Menu management. Lists categories -> items (same butter vibe as storefront).
-// Tap an item to edit every POS field. Availability + inventory inline.
+// Menu management. Categories -> groups -> items. Drag items to reorder (dnd-kit),
+// tap to edit, add new items per group. Order persists to sort_order.
 import { useEffect, useState, useCallback } from 'react';
+import { Plus } from 'lucide-react';
+import {
+  DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext, arrayMove, rectSortingStrategy, useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { supabase, menuImageUrl } from '../../../lib/supabase';
+import { persistOrder } from './menuActions';
 import ItemEditModal from './ItemEditModal';
+
+function SortableItem({ item, onEdit }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
+  const dimmed = !item.is_available_today;
+  const img = menuImageUrl(item.image_path);
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : dimmed ? 0.5 : 1,
+    touchAction: 'none',
+    background: 'var(--mb-surface-base)',
+    border: '1px solid var(--mb-surface-line)',
+  };
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}
+      onClick={() => onEdit(item)}
+      className="flex cursor-grab flex-col overflow-hidden rounded-2xl text-left active:cursor-grabbing"
+    >
+      <div className="aspect-square w-full" style={{ background: 'var(--mb-surface-paper)' }}>
+        {img && <img src={img} alt={item.name} className="h-full w-full object-contain" style={{ filter: dimmed ? 'grayscale(0.5)' : 'none' }} draggable={false} />}
+      </div>
+      <div className="p-3">
+        <p className="text-sm font-medium leading-tight">{item.name}</p>
+        <p className="mt-1 text-xs" style={{ color: 'var(--mb-text-muted)' }}>
+          ${(item.price / 100).toFixed(2)}{item.track_stock ? ` · ${item.stock_qty ?? 0} left` : ''}
+        </p>
+        {dimmed && <p className="mt-1 text-[10px] font-medium uppercase" style={{ color: 'var(--mb-accent-toast)', letterSpacing: '0.08em' }}>not today</p>}
+      </div>
+    </div>
+  );
+}
+
+function GroupGrid({ group, onEdit, onReorder, onAdd }) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 6 } }),
+  );
+
+  const onDragEnd = (e) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const ids = group.items.map((i) => i.id);
+    const from = ids.indexOf(active.id);
+    const to = ids.indexOf(over.id);
+    const reordered = arrayMove(group.items, from, to);
+    onReorder(group.id, reordered);
+  };
+
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+      <SortableContext items={group.items.map((i) => i.id)} strategy={rectSortingStrategy}>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {group.items.map((item) => (
+            <SortableItem key={item.id} item={item} onEdit={onEdit} />
+          ))}
+          <button
+            onClick={() => onAdd(group.id)}
+            className="flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl text-sm font-medium"
+            style={{ border: '2px dashed var(--mb-surface-line-strong)', color: 'var(--mb-text-muted)' }}
+          >
+            <Plus size={22} /> add item
+          </button>
+        </div>
+      </SortableContext>
+    </DndContext>
+  );
+}
 
 export default function AdminMenu() {
   const [cats, setCats] = useState([]);
@@ -12,13 +88,9 @@ export default function AdminMenu() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data: categories } = await supabase
-      .from('categories').select('*').order('sort_order');
-    const { data: groups } = await supabase
-      .from('groups').select('*').order('sort_order');
-    const { data: items } = await supabase
-      .from('items').select('*').order('sort_order');
-
+    const { data: categories } = await supabase.from('categories').select('*').order('sort_order');
+    const { data: groups } = await supabase.from('groups').select('*').order('sort_order');
+    const { data: items } = await supabase.from('items').select('*').order('sort_order');
     const tree = (categories || []).map((c) => ({
       ...c,
       groups: (groups || []).filter((g) => g.category_id === c.id).map((g) => ({
@@ -34,14 +106,24 @@ export default function AdminMenu() {
 
   const onSaved = () => { setEditing(null); load(); };
 
-  if (loading) {
-    return <p className="p-8 text-sm" style={{ color: 'var(--mb-text-muted)' }}>loading menu…</p>;
-  }
+  const onReorder = async (groupId, reordered) => {
+    setCats((prev) => prev.map((c) => ({
+      ...c,
+      groups: c.groups.map((g) => g.id === groupId ? { ...g, items: reordered } : g),
+    })));
+    try {
+      await persistOrder('items', reordered.map((it, idx) => ({ id: it.id, sort_order: idx })));
+    } catch {
+      load();
+    }
+  };
+
+  if (loading) return <p className="p-8 text-sm" style={{ color: 'var(--mb-text-muted)' }}>loading menu…</p>;
 
   return (
     <div className="px-4 py-6 sm:px-8">
       <h1 className="text-2xl font-semibold" style={{ letterSpacing: 'var(--tracking-heading)' }}>Menu</h1>
-      <p className="mt-1 text-sm" style={{ color: 'var(--mb-text-muted)' }}>Tap an item to edit. Toggle what's available today.</p>
+      <p className="mt-1 text-sm" style={{ color: 'var(--mb-text-muted)' }}>Drag to reorder. Tap to edit. Use + to add an item.</p>
 
       {cats.map((c) => (
         <section key={c.id} className="mt-8">
@@ -51,32 +133,7 @@ export default function AdminMenu() {
               {c.groups.length > 1 && (
                 <h3 className="mb-3 text-xs font-medium uppercase" style={{ letterSpacing: '0.1em', color: 'var(--mb-text-muted)' }}>{g.name}</h3>
               )}
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                {g.items.map((item) => {
-                  const img = menuImageUrl(item.image_path);
-                  const dimmed = !item.is_available_today;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => setEditing(item)}
-                      className="flex flex-col overflow-hidden rounded-2xl text-left transition-transform active:scale-[0.98]"
-                      style={{ background: 'var(--mb-surface-base)', border: '1px solid var(--mb-surface-line)', opacity: dimmed ? 0.5 : 1 }}
-                    >
-                      <div className="aspect-square w-full" style={{ background: 'var(--mb-surface-paper)' }}>
-                        {img && <img src={img} alt={item.name} className="h-full w-full object-contain" style={{ filter: dimmed ? 'grayscale(0.5)' : 'none' }} />}
-                      </div>
-                      <div className="p-3">
-                        <p className="text-sm font-medium leading-tight">{item.name}</p>
-                        <p className="mt-1 text-xs" style={{ color: 'var(--mb-text-muted)' }}>
-                          ${(item.price / 100).toFixed(2)}
-                          {item.track_stock ? ` · ${item.stock_qty ?? 0} left` : ''}
-                        </p>
-                        {dimmed && <p className="mt-1 text-[10px] font-medium uppercase" style={{ color: 'var(--mb-accent-toast)', letterSpacing: '0.08em' }}>not today</p>}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+              <GroupGrid group={g} onEdit={setEditing} onReorder={onReorder} onAdd={(gid) => setEditing({ __new: true, group_id: gid })} />
             </div>
           ))}
         </section>
