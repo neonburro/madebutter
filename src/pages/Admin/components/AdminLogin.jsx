@@ -1,8 +1,9 @@
 // src/pages/Admin/components/AdminLogin.jsx
 // Clean login: logo, username + password (placeholder-only), forgot + login.
-// Username resolves to an email server-side, then signs in via Supabase Auth.
+// "Forgot password?" swaps to the ForgotPassword request screen.
 import { useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
+import ForgotPassword from './ForgotPassword';
 
 export default function AdminLogin() {
   const { signIn } = useAuth();
@@ -10,12 +11,14 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [forgot, setForgot] = useState(false);
+
+  if (forgot) return <ForgotPassword onBack={() => setForgot(false)} />;
 
   const submit = async () => {
     if (!username || !password) return;
     setBusy(true);
     setError(null);
-
     try {
       const res = await fetch('/.netlify/functions/resolve-staff-username', {
         method: 'POST',
@@ -28,7 +31,6 @@ export default function AdminLogin() {
         setBusy(false);
         return;
       }
-
       const err = await signIn(data.email, password);
       if (err) {
         setError('Wrong username or password.');
@@ -83,7 +85,11 @@ export default function AdminLogin() {
           {busy ? 'Signing in…' : 'Log in'}
         </button>
 
-        <button className="mt-4 w-full text-center text-xs" style={{ color: 'var(--mb-text-muted)' }}>
+        <button
+          onClick={() => setForgot(true)}
+          className="mt-4 w-full text-center text-xs"
+          style={{ color: 'var(--mb-text-muted)' }}
+        >
           Forgot password?
         </button>
       </div>

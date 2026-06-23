@@ -27,8 +27,7 @@ function App() {
             <Route path="/checkout/" element={<Checkout />} />
             <Route path="/order/:id" element={<OrderConfirmation />} />
             <Route path="/order/:id/" element={<OrderConfirmation />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/" element={<Admin />} />
+            <Route path="/admin/*" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>

@@ -1,25 +1,27 @@
 // src/pages/Home/index.jsx
-// Fixed top nav, hero slideshow, sticky centered menu nav, menu bands, footer.
+// Fixed top nav, hero slideshow, About section, sticky menu nav, menu bands, footer.
 import { useState } from 'react';
 import { useMenu } from '../../data/useMenu';
 import TopNav from '../../components/Nav/TopNav';
 import Footer from '../../components/Footer/Footer';
 import Hero from './components/Hero';
+import AboutSection from './components/AboutSection';
 import FamilyNav from './components/FamilyNav';
 import MenuBand from './components/MenuBand';
+import ItemDetailModal from './components/ItemDetailModal';
 import CartButton from '../../components/Cart/CartButton';
 import CartSheet from '../../components/Cart/CartSheet';
 
 export default function Home() {
   const { categories, loading, error } = useMenu();
   const [cartOpen, setCartOpen] = useState(false);
+  const [detailItem, setDetailItem] = useState(null);
 
   const scrollToMenu = () => {
     const first = categories[0];
     if (first) document.getElementById(`cat-${first.slug}`)?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // TODO: point at the /suggest/ route once the suggestion form is built
   const goSuggest = () => scrollToMenu();
 
   return (
@@ -28,6 +30,7 @@ export default function Home() {
       <div className="h-[57px]" />
 
       <Hero onOrder={scrollToMenu} onSuggest={goSuggest} />
+      <AboutSection />
       <FamilyNav categories={categories} />
 
       {loading && (
@@ -41,13 +44,14 @@ export default function Home() {
       )}
 
       {categories.map((cat) => (
-        <MenuBand key={cat.id} category={cat} />
+        <MenuBand key={cat.id} category={cat} onOpen={setDetailItem} />
       ))}
 
       <Footer />
 
       <CartButton onClick={() => setCartOpen(true)} />
       <CartSheet open={cartOpen} onClose={() => setCartOpen(false)} />
+      <ItemDetailModal item={detailItem} onClose={() => setDetailItem(null)} />
     </div>
   );
 }

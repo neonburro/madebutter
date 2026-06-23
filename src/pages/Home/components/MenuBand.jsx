@@ -3,7 +3,7 @@
 // Grid: 2-up mobile with near-touching gaps, 5-up desktop with large images.
 import ItemCard from './ItemCard';
 
-export default function MenuBand({ category }) {
+export default function MenuBand({ category, onOpen }) {
   return (
     <section id={`cat-${category.slug}`} className="w-full scroll-mt-28 py-12">
       <div className="mx-auto w-[98%]">
@@ -20,7 +20,7 @@ export default function MenuBand({ category }) {
             )}
             <div className="grid grid-cols-2 gap-x-1 gap-y-6 sm:gap-x-3 sm:gap-y-9 md:grid-cols-3 lg:grid-cols-5">
               {group.items.map((item) => (
-                <ItemCard key={item.id} item={item} />
+                <ItemCard key={item.id} item={item} onOpen={onOpen} />
               ))}
             </div>
           </div>

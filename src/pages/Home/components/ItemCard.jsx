@@ -1,11 +1,13 @@
 // src/pages/Home/components/ItemCard.jsx
+// Tapping the card image/name opens the info popup (onOpen).
+// The + button adds to cart and stops propagation so it doesn't open the popup.
 import { Plus } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCart } from '../../../context/CartContext';
 import { formatPrice } from '../../../lib/format';
 import { menuImageUrl } from '../../../lib/supabase';
 
-export default function ItemCard({ item }) {
+export default function ItemCard({ item, onOpen }) {
   const { add, qtyOf } = useCart();
   const available = item.is_available_today;
   const img = menuImageUrl(item.image_path);
@@ -13,9 +15,11 @@ export default function ItemCard({ item }) {
 
   return (
     <div className={`group flex flex-col ${available ? '' : 'opacity-45'}`}>
-      <div
-        className="relative aspect-square w-full overflow-hidden rounded-2xl"
+      <button
+        onClick={() => onOpen?.(item)}
+        className="relative aspect-square w-full overflow-hidden rounded-2xl text-left"
         style={{ background: 'var(--mb-surface-base)' }}
+        aria-label={`View ${item.name}`}
       >
         {img ? (
           <img
@@ -48,15 +52,16 @@ export default function ItemCard({ item }) {
         </AnimatePresence>
 
         {available ? (
-          <motion.button
-            onClick={() => add(item)}
+          <motion.span
+            onClick={(e) => { e.stopPropagation(); add(item); }}
+            role="button"
             aria-label={`Add ${item.name}`}
             whileTap={{ scale: 0.82 }}
             className="absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full shadow-md"
             style={{ background: 'var(--mb-accent-butter)', color: 'var(--mb-text-primary)' }}
           >
             <Plus size={18} />
-          </motion.button>
+          </motion.span>
         ) : (
           <span
             className="absolute bottom-2 left-2 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase"
@@ -65,7 +70,7 @@ export default function ItemCard({ item }) {
             not today
           </span>
         )}
-      </div>
+      </button>
 
       <div className="mt-2 px-0.5">
         <p className="text-sm font-medium leading-tight">{item.name}</p>

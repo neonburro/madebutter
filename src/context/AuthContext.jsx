@@ -1,5 +1,5 @@
 // src/context/AuthContext.jsx
-// Real Supabase Auth. Tracks the session + the staff profile (display name, role).
+// Real Supabase Auth. Tracks session + staff profile. Adds password reset helpers.
 import { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 
@@ -42,6 +42,18 @@ export function AuthProvider({ children }) {
     setStaff(null);
   }, []);
 
+  const sendReset = useCallback(async (email) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/admin/reset/`,
+    });
+    return error;
+  }, []);
+
+  const updatePassword = useCallback(async (newPassword) => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    return error;
+  }, []);
+
   const value = useMemo(
     () => ({
       session,
@@ -50,8 +62,10 @@ export function AuthProvider({ children }) {
       isStaff: !!session && !!staff,
       signIn,
       signOut,
+      sendReset,
+      updatePassword,
     }),
-    [session, staff, loading, signIn, signOut]
+    [session, staff, loading, signIn, signOut, sendReset, updatePassword]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
