@@ -1,6 +1,6 @@
 // src/pages/Admin/index.jsx
 // /admin routing. Login when signed out; shell + nested sections when staff.
-// /admin/reset/ stays public (recovery email link).
+// /admin/reset/ stays public (recovery email link). A recovery session forces reset.
 import { Routes, Route } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AdminLogin from './components/AdminLogin';
@@ -11,7 +11,7 @@ import ResetPassword from './components/ResetPassword';
 import AdminMenu from './menu/AdminMenu';
 
 function Gate({ children }) {
-  const { isStaff, loading } = useAuth();
+  const { isStaff, loading, recovering } = useAuth();
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center" style={{ background: 'var(--mb-surface-paper)' }}>
@@ -19,6 +19,8 @@ function Gate({ children }) {
       </main>
     );
   }
+  // A recovery session from an email link must set a new password before anything else.
+  if (recovering) return <ResetPassword />;
   return isStaff ? children : <AdminLogin />;
 }
 

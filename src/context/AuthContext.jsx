@@ -9,6 +9,7 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [staff, setStaff] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [recovering, setRecovering] = useState(false);
 
   const loadStaff = useCallback(async (userId) => {
     if (!userId) { setStaff(null); return; }
@@ -24,7 +25,8 @@ export function AuthProvider({ children }) {
       loadStaff(data.session?.user?.id).finally(() => setLoading(false));
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((evt, sess) => {
+      if (evt === 'PASSWORD_RECOVERY') setRecovering(true);
       setSession(sess);
       loadStaff(sess?.user?.id);
     });
@@ -40,7 +42,10 @@ export function AuthProvider({ children }) {
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     setStaff(null);
+    setRecovering(false);
   }, []);
+
+  const finishRecovery = useCallback(() => setRecovering(false), []);
 
   const sendReset = useCallback(async (email) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -59,13 +64,15 @@ export function AuthProvider({ children }) {
       session,
       staff,
       loading,
+      recovering,
       isStaff: !!session && !!staff,
       signIn,
       signOut,
       sendReset,
       updatePassword,
+      finishRecovery,
     }),
-    [session, staff, loading, signIn, signOut, sendReset, updatePassword]
+    [session, staff, loading, recovering, signIn, signOut, sendReset, updatePassword, finishRecovery]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
