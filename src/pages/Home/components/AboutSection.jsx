@@ -1,6 +1,6 @@
 // src/pages/Home/components/AboutSection.jsx
 // 50/50 band below the hero. Reads the single about_section row from Supabase.
-// Desktop: text left, image right. Mobile: image on top, text below.
+// Desktop: text (centered) left, image right. Mobile: image on top, text below.
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 
@@ -28,11 +28,11 @@ export default function AboutSection() {
           {img && <img src={img} alt={about.heading} className="h-full w-full object-cover" />}
         </div>
 
-        <div className="text-center sm:text-left">
+        <div className="flex flex-col items-center text-center">
           <h2 className="text-3xl font-semibold sm:text-4xl" style={{ letterSpacing: 'var(--tracking-heading)', lineHeight: 1.1 }}>
             {about.heading}
           </h2>
-          <p className="mx-auto mt-5 max-w-md text-base leading-relaxed sm:mx-0" style={{ color: 'var(--mb-text-secondary)' }}>
+          <p className="mx-auto mt-5 max-w-md text-base leading-relaxed" style={{ color: 'var(--mb-text-secondary)' }}>
             {about.body}
           </p>
         </div>
