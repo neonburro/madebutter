@@ -7,6 +7,8 @@ import Home from './pages/Home';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
 import Admin from './pages/Admin';
+import Terms from './pages/Legal/Terms';
+import Privacy from './pages/Legal/Privacy';
 import NotFound from './pages/NotFound';
 
 function ScrollToTop() {
@@ -27,6 +29,10 @@ function App() {
             <Route path="/checkout/" element={<Checkout />} />
             <Route path="/order/:id" element={<OrderConfirmation />} />
             <Route path="/order/:id/" element={<OrderConfirmation />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/terms/" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/privacy/" element={<Privacy />} />
             <Route path="/admin/*" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

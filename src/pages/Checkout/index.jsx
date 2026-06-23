@@ -1,18 +1,14 @@
 // src/pages/Checkout/index.jsx
-import { useState } from 'react';
+// Single-screen checkout: order summary, details, then pay. No separate steps.
+// Guest-first. Optional unchecked opt-in to save info for rewards + faster checkout.
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import Wordmark from '../../components/Brand/Wordmark';
 import CheckoutSummary from './components/CheckoutSummary';
-import ContactStep from './components/ContactStep';
-import PaymentStep from './components/PaymentStep';
+import CheckoutFlow from './components/CheckoutFlow';
 
 export default function Checkout() {
   const { count } = useCart();
-  const [step, setStep] = useState('contact');
-  const [contact, setContact] = useState({
-    name: '', channel: 'sms', phone: '', email: '', saveInfo: true,
-  });
 
   return (
     <main className="mx-auto w-full max-w-lg px-6 py-10">
@@ -25,11 +21,7 @@ export default function Checkout() {
         <>
           <CheckoutSummary />
           <div className="mt-6">
-            {step === 'contact' ? (
-              <ContactStep value={contact} onChange={setContact} onContinue={() => setStep('payment')} />
-            ) : (
-              <PaymentStep contact={contact} onBack={() => setStep('contact')} />
-            )}
+            <CheckoutFlow />
           </div>
         </>
       )}
