@@ -7,10 +7,11 @@ import { Trash2, Upload } from 'lucide-react';
 import { supabase, menuImageUrl } from '../../../lib/supabase';
 import { slugify, uploadMenuImage } from './menuActions';
 
-export default function ItemEditModal({ item, onClose, onSaved }) {
+export default function ItemEditModal({ item, onClose, onSaved, onSavedQuiet }) {
   const [form, setForm] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+  const [saved, setSaved] = useState(false);
   const [preview, setPreview] = useState(null);
   const fileRef = useRef(null);
   const pendingFile = useRef(null);
@@ -32,6 +33,7 @@ export default function ItemEditModal({ item, onClose, onSaved }) {
       setPreview(null);
       pendingFile.current = null;
       setError(null);
+      setSaved(false);
     }
   }, [item]);
 
@@ -80,11 +82,16 @@ export default function ItemEditModal({ item, onClose, onSaved }) {
           ...payload, group_id: item.group_id, is_active: true, sort_order: 999,
         });
         if (err) throw err;
+        onSaved();
+        return;
       } else {
         const { error: err } = await supabase.from('items').update(payload).eq('id', item.id);
         if (err) throw err;
       }
-      onSaved();
+      setBusy(false);
+      setSaved(true);
+      onSavedQuiet && onSavedQuiet();
+      setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       setError(err.message || 'Could not save.');
       setBusy(false);
@@ -166,9 +173,10 @@ export default function ItemEditModal({ item, onClose, onSaved }) {
                   <input value={form.sku} onChange={(e) => set('sku', e.target.value)} placeholder="auto from name if blank" className="w-full rounded-xl px-3 py-2.5 text-sm outline-none font-mono" style={field} />
                 </label>
 
-                <button onClick={() => set('is_available_today', !form.is_available_today)} className="flex w-full items-center justify-between rounded-xl px-3 py-3" style={field}>
-                  <span className="text-sm font-medium">Available today</span>
-                  <span className="relative h-6 w-11 rounded-full transition-colors" style={{ background: form.is_available_today ? 'var(--mb-accent-butter)' : 'var(--mb-surface-line-strong)' }}>
+                <button onClick={() => set('is_available_today', !form.is_available_today)} className="flex w-full items-center justify-between rounded-xl px-3 py-3"
+                  style={{ ...field, background: form.is_available_today ? 'rgba(120,170,90,0.10)' : 'rgba(184,80,60,0.08)', borderColor: form.is_available_today ? 'rgba(120,170,90,0.5)' : 'rgba(184,80,60,0.4)' }}>
+                  <span className="text-sm font-medium">{form.is_available_today ? 'Available today' : 'Not available today'}</span>
+                  <span className="relative h-6 w-11 rounded-full transition-colors" style={{ background: form.is_available_today ? '#7AA85A' : '#C2685A' }}>
                     <span className="absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform" style={{ transform: form.is_available_today ? 'translateX(22px)' : 'translateX(2px)' }} />
                   </span>
                 </button>
@@ -196,11 +204,16 @@ export default function ItemEditModal({ item, onClose, onSaved }) {
                 {error && <p className="text-xs" style={{ color: 'var(--mb-accent-toast)' }}>{error}</p>}
               </div>
 
-              <div className="sticky bottom-0 flex gap-3 border-t p-4" style={{ background: 'var(--mb-surface-base)', borderColor: 'var(--mb-surface-line)' }}>
-                <button onClick={onClose} className="flex-1 rounded-full py-3 text-sm font-medium" style={{ border: '1px solid var(--mb-surface-line-strong)' }}>Cancel</button>
-                <button onClick={save} disabled={busy} className="flex-1 rounded-full py-3 text-sm font-semibold disabled:opacity-60" style={{ background: 'var(--mb-dark-base)', color: 'var(--mb-dark-text)' }}>
-                  {busy ? 'Saving…' : isNew ? 'Create' : 'Save'}
-                </button>
+              <div className="sticky bottom-0 border-t p-4" style={{ background: 'var(--mb-surface-base)', borderColor: 'var(--mb-surface-line)' }}>
+                {saved && (
+                  <p className="mb-3 text-center text-sm font-medium" style={{ color: '#7AA85A' }}>Saved.</p>
+                )}
+                <div className="flex gap-3">
+                  <button onClick={onClose} className="flex-1 rounded-full py-3 text-sm font-medium" style={{ border: '1px solid var(--mb-surface-line-strong)' }}>Close</button>
+                  <button onClick={save} disabled={busy} className="flex-1 rounded-full py-3 text-sm font-semibold disabled:opacity-60" style={{ background: 'var(--mb-dark-base)', color: 'var(--mb-dark-text)' }}>
+                    {busy ? 'Saving…' : saved ? 'Saved' : isNew ? 'Create' : 'Save'}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

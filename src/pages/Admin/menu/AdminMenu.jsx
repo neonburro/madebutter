@@ -105,6 +105,7 @@ export default function AdminMenu() {
   useEffect(() => { load(); }, [load]);
 
   const onSaved = () => { setEditing(null); load(); };
+  const onSavedQuiet = () => { load(); };
 
   const onReorder = async (groupId, reordered) => {
     setCats((prev) => prev.map((c) => ({
@@ -139,7 +140,7 @@ export default function AdminMenu() {
         </section>
       ))}
 
-      <ItemEditModal item={editing} onClose={() => setEditing(null)} onSaved={onSaved} />
+      <ItemEditModal item={editing} onClose={() => setEditing(null)} onSaved={onSaved} onSavedQuiet={onSavedQuiet} />
     </div>
   );
 }
