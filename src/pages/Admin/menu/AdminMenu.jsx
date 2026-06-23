@@ -86,8 +86,8 @@ export default function AdminMenu() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async (quiet = false) => {
+    if (!quiet) setLoading(true);
     const { data: categories } = await supabase.from('categories').select('*').order('sort_order');
     const { data: groups } = await supabase.from('groups').select('*').order('sort_order');
     const { data: items } = await supabase.from('items').select('*').order('sort_order');
@@ -99,13 +99,13 @@ export default function AdminMenu() {
       })),
     }));
     setCats(tree);
-    setLoading(false);
+    if (!quiet) setLoading(false);
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
-  const onSaved = () => { setEditing(null); load(); };
-  const onSavedQuiet = () => { load(); };
+  const onSaved = () => { setEditing(null); load(true); };
+  const onSavedQuiet = () => { load(true); };
 
   const onReorder = async (groupId, reordered) => {
     setCats((prev) => prev.map((c) => ({
@@ -115,7 +115,7 @@ export default function AdminMenu() {
     try {
       await persistOrder('items', reordered.map((it, idx) => ({ id: it.id, sort_order: idx })));
     } catch {
-      load();
+      load(true);
     }
   };
 
