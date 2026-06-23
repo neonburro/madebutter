@@ -2,22 +2,22 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Wordmark from '../../components/Brand/Wordmark';
+import ButterMark from '../../components/Brand/ButterMark';
 
 export default function OrderConfirmation() {
   const { state } = useLocation();
-  const channel = state?.channel;
+  const channel = state?.channel; // 'sms' | 'email' | undefined
   const channelWord = channel === 'email' ? 'email' : channel === 'sms' ? 'text' : 'message';
 
   return (
     <main className="mx-auto flex min-h-[80vh] w-full max-w-lg flex-col items-center justify-center px-6 text-center">
       <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-        className="mb-6 flex h-16 w-16 items-center justify-center rounded-full"
-        style={{ background: 'var(--mb-accent-butter)' }}
+        initial={{ scale: 0, opacity: 0, rotate: -12 }}
+        animate={{ scale: 1, opacity: 1, rotate: 0 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 18 }}
+        className="mb-6"
       >
-        <span className="text-2xl">✓</span>
+        <ButterMark size={72} />
       </motion.div>
 
       <Wordmark className="text-3xl" />

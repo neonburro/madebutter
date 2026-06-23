@@ -10,6 +10,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { getStripe, stripeAppearance } from '../../../lib/stripe';
 import { useCart } from '../../../context/CartContext';
+import ButterMark from '../../../components/Brand/ButterMark';
 
 function PayInner({ contact }) {
   const stripe = useStripe();
@@ -180,17 +181,23 @@ export default function CheckoutFlow() {
       {error && <p className="mt-3 text-xs" style={{ color: 'var(--mb-accent-toast)' }}>{error}</p>}
 
       {!clientSecret ? (
-        <button
-          onClick={startPayment}
-          disabled={starting}
-          className="mt-5 w-full rounded-full py-3.5 text-sm font-semibold transition-transform active:scale-[0.99] disabled:opacity-60"
-          style={{
-            background: valid ? 'var(--mb-dark-base)' : 'var(--mb-surface-raised)',
-            color: valid ? 'var(--mb-dark-text)' : 'var(--mb-text-muted)',
-          }}
-        >
-          {starting ? 'Preparing checkout…' : 'Continue to payment'}
-        </button>
+        starting ? (
+          <div className="mt-6 flex flex-col items-center justify-center py-6">
+            <ButterMark size={52} animate />
+            <p className="mt-4 text-sm" style={{ color: 'var(--mb-text-muted)' }}>warming up your checkout…</p>
+          </div>
+        ) : (
+          <button
+            onClick={startPayment}
+            className="mt-5 w-full rounded-full py-3.5 text-sm font-semibold transition-transform active:scale-[0.99]"
+            style={{
+              background: valid ? 'var(--mb-dark-base)' : 'var(--mb-surface-raised)',
+              color: valid ? 'var(--mb-dark-text)' : 'var(--mb-text-muted)',
+            }}
+          >
+            Continue to payment
+          </button>
+        )
       ) : (
         <Elements stripe={getStripe()} options={{ clientSecret, appearance: stripeAppearance }}>
           <PayInner contact={contact} />
