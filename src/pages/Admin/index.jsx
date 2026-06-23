@@ -9,6 +9,7 @@ import AdminHome from './components/AdminHome';
 import Placeholder from './components/Placeholder';
 import ResetPassword from './components/ResetPassword';
 import AdminMenu from './menu/AdminMenu';
+import OrdersBoard from './orders/OrdersBoard';
 
 function Gate({ children }) {
   const { isStaff, loading, recovering } = useAuth();
@@ -19,7 +20,6 @@ function Gate({ children }) {
       </main>
     );
   }
-  // A recovery session from an email link must set a new password before anything else.
   if (recovering) return <ResetPassword />;
   return isStaff ? children : <AdminLogin />;
 }
@@ -35,8 +35,8 @@ export default function Admin() {
         <Route path="menu/" element={<AdminMenu />} />
         <Route path="hero" element={<Placeholder title="Hero" />} />
         <Route path="hero/" element={<Placeholder title="Hero" />} />
-        <Route path="orders" element={<Placeholder title="Orders" />} />
-        <Route path="orders/" element={<Placeholder title="Orders" />} />
+        <Route path="orders" element={<OrdersBoard />} />
+        <Route path="orders/" element={<OrdersBoard />} />
       </Route>
     </Routes>
   );
