@@ -155,7 +155,7 @@ export default function ItemEditModal({ item, onClose, onSaved, onSavedQuiet }) 
 
                 <label className="block">
                   <span className="mb-1 block text-xs font-medium" style={{ color: 'var(--mb-text-muted)' }}>Price (dollars)</span>
-                  <input value={form.price_dollars} onChange={(e) => set('price_dollars', e.target.value)} inputMode="decimal" className="w-full rounded-xl px-3 py-2.5 text-sm outline-none" style={field} />
+                  <input value={form.price_dollars} onChange={(e) => set('price_dollars', e.target.value)} onFocus={(e) => e.target.select()} inputMode="decimal" className="w-full rounded-xl px-3 py-2.5 text-sm outline-none" style={field} />
                 </label>
 
                 <label className="block">
@@ -190,8 +190,16 @@ export default function ItemEditModal({ item, onClose, onSaved, onSavedQuiet }) 
 
                 {form.track_stock && (
                   <label className="block">
-                    <span className="mb-1 block text-xs font-medium" style={{ color: 'var(--mb-text-muted)' }}>How many made today</span>
-                    <input value={form.stock_qty} onChange={(e) => set('stock_qty', e.target.value)} inputMode="numeric" className="w-full rounded-xl px-3 py-2.5 text-sm outline-none" style={field} />
+                    <span className="mb-1 block text-xs font-medium" style={{ color: 'var(--mb-text-muted)' }}>How many on hand</span>
+                    <input
+                      value={form.stock_qty === 0 || form.stock_qty === '0' ? '' : form.stock_qty}
+                      onChange={(e) => { const v = e.target.value.replace(/[^0-9]/g, ''); set('stock_qty', v === '' ? 0 : parseInt(v, 10)); }}
+                      onFocus={(e) => e.target.select()}
+                      inputMode="numeric"
+                      placeholder="0"
+                      className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+                      style={field}
+                    />
                   </label>
                 )}
 

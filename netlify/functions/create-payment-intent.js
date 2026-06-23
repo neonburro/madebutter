@@ -1,9 +1,11 @@
 // netlify/functions/create-payment-intent.js
-// Recomputes totals from the DB (never trusts client prices), creates a PaymentIntent.
+// Takes the cart, RECOMPUTES totals from the database (never trusts client prices),
+// enforces stock (refuses oversell with a smart message), creates a Stripe
+// PaymentIntent, returns the client secret.
 import Stripe from 'stripe';
 import { adminClient, json } from './_shared.js';
 
-const TAX_RATE = 0; // prices are tax-included per pricing sheet
+const TAX_RATE = 0; // prices are tax-included per pricing sheet; adjust if needed
 
 export async function handler(event) {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
@@ -20,19 +22,30 @@ export async function handler(event) {
     const slugs = cart.map((c) => c.slug);
     const { data: items, error } = await db
       .from('items')
-      .select('id, slug, name, price, is_active, is_available_today')
+      .select('id, slug, name, price, is_active, is_available_today, track_stock, stock_qty')
       .in('slug', slugs);
 
     if (error) throw error;
 
     let subtotal = 0;
     const lineItems = [];
+    const shortfalls = [];
+
     for (const c of cart) {
       const dbItem = items.find((i) => i.slug === c.slug);
       if (!dbItem || !dbItem.is_active || !dbItem.is_available_today) {
         return json(400, { error: `Item unavailable: ${c.slug}` });
       }
       const qty = Math.max(1, parseInt(c.qty, 10) || 1);
+
+      if (dbItem.track_stock) {
+        const available = dbItem.stock_qty == null ? 0 : dbItem.stock_qty;
+        if (qty > available) {
+          shortfalls.push({ slug: dbItem.slug, name: dbItem.name, requested: qty, available });
+          continue;
+        }
+      }
+
       const lineTotal = dbItem.price * qty;
       subtotal += lineTotal;
       lineItems.push({
@@ -45,8 +58,13 @@ export async function handler(event) {
       });
     }
 
+    if (shortfalls.length) {
+      return json(409, { error: 'stock_changed', shortfalls });
+    }
+
     const tax = Math.round(subtotal * TAX_RATE);
     const total = subtotal + tax;
+
     if (total <= 0) return json(400, { error: 'Order total must be greater than zero' });
 
     const intent = await stripe.paymentIntents.create({

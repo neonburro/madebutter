@@ -105,6 +105,14 @@ export default function CheckoutFlow() {
         }),
       });
       const data = await res.json();
+      if (res.status === 409 && data.error === 'stock_changed') {
+        const msgs = (data.shortfalls || []).map((s) =>
+          s.available > 0 ? `${s.name}: only ${s.available} left` : `${s.name}: sold out`
+        );
+        setError(`Some items just changed. ${msgs.join('. ')}. Please head back and adjust your cart.`);
+        setStarting(false);
+        return;
+      }
       if (!res.ok) throw new Error(data.error || 'Could not start payment');
       setClientSecret(data.clientSecret);
     } catch (err) {

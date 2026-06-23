@@ -10,6 +10,7 @@ import Placeholder from './components/Placeholder';
 import ResetPassword from './components/ResetPassword';
 import AdminMenu from './menu/AdminMenu';
 import OrdersBoard from './orders/OrdersBoard';
+import InventoryBoard from './inventory/InventoryBoard';
 
 function Gate({ children }) {
   const { isStaff, loading, recovering } = useAuth();
@@ -33,6 +34,8 @@ export default function Admin() {
         <Route index element={<AdminHome />} />
         <Route path="menu" element={<AdminMenu />} />
         <Route path="menu/" element={<AdminMenu />} />
+        <Route path="inventory" element={<InventoryBoard />} />
+        <Route path="inventory/" element={<InventoryBoard />} />
         <Route path="hero" element={<Placeholder title="Hero" />} />
         <Route path="hero/" element={<Placeholder title="Hero" />} />
         <Route path="orders" element={<OrdersBoard />} />
