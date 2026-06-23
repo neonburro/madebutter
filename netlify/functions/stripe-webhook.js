@@ -1,10 +1,11 @@
 // netlify/functions/stripe-webhook.js
-// On payment_intent.succeeded: upsert customer, write order + items, status 'paid'.
-// No locker yet — staff assigns manually, then notify-order fires.
+// Stripe calls this when payment_intent.succeeded. We verify the signature,
+// upsert the customer (respecting consent), write the order + items, status 'paid',
+// then decrement inventory for tracked items. receipt_no auto-assigns via DB trigger.
 import Stripe from 'stripe';
 import { adminClient, json, shortCode } from './_shared.js';
 
-export const config = { bodyParser: false };
+export const config = { bodyParser: false }; // need raw body for signature check
 
 export async function handler(event) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -64,7 +65,7 @@ export async function handler(event) {
         total_cents: parseInt(m.total_cents, 10) || 0,
         stripe_payment_intent_id: pi.id,
       })
-      .select('id, short_code')
+      .select('id, short_code, receipt_no')
       .single();
 
     if (orderErr) throw orderErr;
@@ -73,9 +74,17 @@ export async function handler(event) {
       const rows = lineItems.map((li) => ({ ...li, order_id: order.id }));
       const { error: itemsErr } = await db.from('order_items').insert(rows);
       if (itemsErr) throw itemsErr;
+
+      for (const li of lineItems) {
+        if (li.item_id) {
+          await db.rpc('decrement_stock', { p_item_id: li.item_id, p_qty: li.qty });
+        }
+      }
     }
 
-    return json(200, { received: true, order_id: order.id, short_code: order.short_code });
+    // TODO: fire "order received" notification (notify-order shell) once creds land
+
+    return json(200, { received: true, order_id: order.id, short_code: order.short_code, receipt_no: order.receipt_no });
   } catch (err) {
     return json(500, { error: err.message });
   }

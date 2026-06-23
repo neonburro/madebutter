@@ -1,6 +1,11 @@
 // src/pages/Checkout/components/PaymentStep.jsx
+// Branded Stripe checkout. Express Checkout (Apple Pay / Google Pay / saved cards)
+// sits on top for instant payment; the card Payment Element is below for everyone else.
+// Server recomputes totals; on success we clear the cart and route to confirmation.
 import { useEffect, useState } from 'react';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import {
+  Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements,
+} from '@stripe/react-stripe-js';
 import { useNavigate } from 'react-router-dom';
 import { getStripe, stripeAppearance } from '../../../lib/stripe';
 import { useCart } from '../../../context/CartContext';
@@ -12,6 +17,22 @@ function InnerForm({ onBack, contact }) {
   const { clear } = useCart();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [hasExpress, setHasExpress] = useState(false);
+
+  const finish = (paymentIntent) => {
+    clear();
+    navigate(`/order/${paymentIntent.id}/`, { state: { channel: contact.channel } });
+  };
+
+  const onExpressConfirm = async () => {
+    if (!stripe || !elements) return;
+    const { error: payErr, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      redirect: 'if_required',
+    });
+    if (payErr) { setError(payErr.message); return; }
+    if (paymentIntent && paymentIntent.status === 'succeeded') finish(paymentIntent);
+  };
 
   const pay = async () => {
     if (!stripe || !elements) return;
@@ -21,23 +42,31 @@ function InnerForm({ onBack, contact }) {
       elements,
       redirect: 'if_required',
     });
-    if (payErr) {
-      setError(payErr.message);
-      setSubmitting(false);
-      return;
-    }
-    if (paymentIntent && paymentIntent.status === 'succeeded') {
-      clear();
-      navigate(`/order/${paymentIntent.id}/`, { state: { channel: contact.channel } });
-    } else {
-      setSubmitting(false);
-    }
+    if (payErr) { setError(payErr.message); setSubmitting(false); return; }
+    if (paymentIntent && paymentIntent.status === 'succeeded') finish(paymentIntent);
+    else setSubmitting(false);
   };
 
   return (
     <div>
+      <div className={hasExpress ? 'mb-5' : ''}>
+        <ExpressCheckoutElement
+          onConfirm={onExpressConfirm}
+          onReady={(e) => setHasExpress(!!(e.availablePaymentMethods))}
+        />
+      </div>
+
+      {hasExpress && (
+        <div className="mb-5 flex items-center gap-3">
+          <span className="h-px flex-1" style={{ background: 'var(--mb-surface-line)' }} />
+          <span className="text-xs" style={{ color: 'var(--mb-text-muted)' }}>or pay with card</span>
+          <span className="h-px flex-1" style={{ background: 'var(--mb-surface-line)' }} />
+        </div>
+      )}
+
       <PaymentElement options={{ layout: 'tabs' }} />
       {error && <p className="mt-3 text-xs" style={{ color: 'var(--mb-accent-toast)' }}>{error}</p>}
+
       <button
         onClick={pay}
         disabled={!stripe || submitting}
