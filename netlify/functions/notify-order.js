@@ -2,7 +2,7 @@
 // Sends order notifications via SMS (Twilio) or email (Resend), per the customer's
 // chosen channel. Two kinds: 'received' (right after payment) and 'ready' (locker
 // assigned). Also sends an admin alert to ADMIN_EMAIL on 'received'.
-// Voice: warm, clean, food-loving. No emoji, no em dashes, no oxford commas.
+// Voice: warm, quirky, positive, clean. No emoji, no em dashes, no oxford commas, no colons.
 import { adminClient, json } from './_shared.js';
 
 const ADMIN_EMAIL = 'madebutter@neonburro.com';
@@ -121,7 +121,7 @@ export async function handler(event) {
 
     const customerSubject = ready
       ? `Your order is ready, ${name} (locker ${locker})`
-      : `Thanks for your order, ${name}`;
+      : `Order received, ${name}`;
 
     const customerInner = ready
       ? `<h1 style="font-size:20px;margin:0 0 8px;">Ready and warm.</h1>
@@ -132,7 +132,7 @@ export async function handler(event) {
          <p style="font-size:13px;color:#9b958c;margin-top:8px;">Order ${code}</p>`
       : `<h1 style="font-size:20px;margin:0 0 8px;">We're on it.</h1>
          <p style="font-size:15px;line-height:1.6;color:#3f3b36;margin:0 0 16px;">
-           Thanks ${name}! We got your order and we're already making it. We'll send your locker number the second it's ready, or come on in and say hi.
+           Thanks ${name}. Your order is in good hands and we are already making it. We will let you know the second it is ready. Come grab it or step inside and say hi.
          </p>
          ${itemRows(items)}
          <table style="width:100%;border-collapse:collapse;border-top:1px solid #eee;margin-top:8px;">
