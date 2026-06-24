@@ -1,7 +1,7 @@
 // netlify/functions/stripe-webhook.js
 // Stripe calls this on payment_intent.succeeded. We verify the signature, find
 // the PENDING order (written during create-payment-intent), flip it to 'paid',
-// decrement inventory, and upsert the customer if they opted in.
+// decrement inventory, upsert the customer if they opted in, and fire notifications.
 import Stripe from 'stripe';
 import { adminClient, json } from './_shared.js';
 
@@ -71,7 +71,18 @@ export async function handler(event) {
       );
     }
 
-    // TODO: fire "order received" customer receipt + admin alert once Twilio/Resend wired.
+    // Fire "order received" customer receipt + admin alert. Don't fail the webhook
+    // if notification has a hiccup — payment already succeeded and the order is saved.
+    try {
+      const base = process.env.URL || process.env.DEPLOY_PRIME_URL || 'https://madebutter.netlify.app';
+      await fetch(`${base}/.netlify/functions/notify-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id: order.id, kind: 'received' }),
+      });
+    } catch (notifyErr) {
+      console.log('[stripe-webhook] notify-order failed:', notifyErr.message);
+    }
 
     return json(200, { received: true, order_id: order.id, status: 'paid' });
   } catch (err) {
