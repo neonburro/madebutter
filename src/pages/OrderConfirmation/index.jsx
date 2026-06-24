@@ -23,7 +23,7 @@ export default function OrderConfirmation() {
       <Wordmark className="text-3xl" />
       <h1 className="mt-6 text-xl font-semibold">Order placed</h1>
       <p className="mt-3 max-w-xs text-sm" style={{ color: 'var(--mb-text-secondary)' }}>
-        Thanks! We're on it. We'll send your locker number by {channelWord} the moment it's ready — come grab it, or step inside for a few extra treats.
+        Thanks! We're on it. We'll send your locker number by {channelWord} the moment it's ready. Come grab it, or step inside for a few extra treats.
       </p>
 
       <Link to="/" className="mt-8 rounded-full px-6 py-3 text-sm font-semibold" style={{ background: 'var(--mb-dark-base)', color: 'var(--mb-dark-text)' }}>

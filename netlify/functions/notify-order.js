@@ -2,7 +2,7 @@
 // Sends order notifications via SMS (Twilio) or email (Resend), per the customer's
 // chosen channel. Two kinds: 'received' (right after payment) and 'ready' (locker
 // assigned). Also sends an admin alert to ADMIN_EMAIL on 'received'.
-// Voice: warm, clean, food-loving. No emoji. Logo in the email header.
+// Voice: warm, clean, food-loving. No emoji, no em dashes, no oxford commas.
 import { adminClient, json } from './_shared.js';
 
 const ADMIN_EMAIL = 'madebutter@neonburro.com';
@@ -53,6 +53,16 @@ async function sendEmail(to, subject, html) {
 
 function money(cents) {
   return `$${((cents || 0) / 100).toFixed(2)}`;
+}
+
+// Timestamp in Mountain Time (Denver), e.g. "Jun 24, 2026, 2:34 AM MST"
+function mtTimestamp(iso) {
+  const d = iso ? new Date(iso) : new Date();
+  return d.toLocaleString('en-US', {
+    timeZone: 'America/Denver',
+    month: 'short', day: 'numeric', year: 'numeric',
+    hour: 'numeric', minute: '2-digit', timeZoneName: 'short',
+  });
 }
 
 function emailShell(inner) {
@@ -110,13 +120,13 @@ export async function handler(event) {
     const itemList = (items || []).map((i) => `${i.qty} x ${i.item_name}`).join(', ');
 
     const customerSubject = ready
-      ? `Your order is ready, ${name} — locker ${locker}`
+      ? `Your order is ready, ${name} (locker ${locker})`
       : `Thanks for your order, ${name}`;
 
     const customerInner = ready
       ? `<h1 style="font-size:20px;margin:0 0 8px;">Ready and warm.</h1>
          <p style="font-size:15px;line-height:1.6;color:#3f3b36;margin:0 0 16px;">
-           Hi ${name}, your order is ready. <strong>Locker ${locker}</strong> is all yours — come grab it, or step inside and say hi.
+           Hi ${name}, your order is ready. <strong>Locker ${locker}</strong> is all yours. Come grab it, or step inside and say hi.
          </p>
          ${itemRows(items)}
          <p style="font-size:13px;color:#9b958c;margin-top:8px;">Order ${code}</p>`
@@ -129,7 +139,7 @@ export async function handler(event) {
            <tr><td style="padding:10px 0 0;font-size:15px;font-weight:600;">Total</td>
            <td style="padding:10px 0 0;font-size:15px;font-weight:600;text-align:right;">${money(order.total_cents)}</td></tr>
          </table>
-         <p style="font-size:13px;color:#9b958c;margin-top:14px;">Order ${code}</p>`;
+         <p style="font-size:13px;color:#9b958c;margin-top:14px;">Order ${code}<br/>${mtTimestamp(order.created_at)}</p>`;
 
     const customerHtml = emailShell(customerInner);
 
@@ -151,9 +161,9 @@ export async function handler(event) {
           <strong>${name}</strong> &bull; ${money(order.total_cents)} &bull; ${order.preferred_channel}
         </p>
         ${itemRows(items)}
-        <p style="font-size:13px;color:#9b958c;margin-top:8px;">Order ${code}</p>
+        <p style="font-size:13px;color:#9b958c;margin-top:8px;">Order ${code}<br/>${mtTimestamp(order.created_at)}</p>
         <p style="margin-top:16px;"><a href="${SITE}/admin/orders/" style="color:#161412;font-weight:600;">Open the orders board &rarr;</a></p>`;
-      adminResult = await sendEmail(ADMIN_EMAIL, `New order — ${name}, ${money(order.total_cents)} (${itemList})`, emailShell(adminInner));
+      adminResult = await sendEmail(ADMIN_EMAIL, `New order: ${name}, ${money(order.total_cents)} (${itemList})`, emailShell(adminInner));
     }
 
     const flag = ready ? { notified_ready: true } : { notified_received: true };
