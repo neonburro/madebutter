@@ -1,11 +1,11 @@
 // netlify/functions/create-payment-intent.js
-// Takes the cart, RECOMPUTES totals from the database (never trusts client prices),
-// enforces stock (refuses oversell with a smart message), creates a Stripe
-// PaymentIntent, returns the client secret.
+// Recomputes totals from the DB (never trusts the client), enforces stock,
+// writes a PENDING order + items to our database, then creates a Stripe
+// PaymentIntent carrying only the order id in metadata (no size limit).
 import Stripe from 'stripe';
-import { adminClient, json } from './_shared.js';
+import { adminClient, json, shortCode } from './_shared.js';
 
-const TAX_RATE = 0; // prices are tax-included per pricing sheet; adjust if needed
+const TAX_RATE = 0; // prices are tax-included per pricing sheet
 
 export async function handler(event) {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
@@ -64,26 +64,45 @@ export async function handler(event) {
 
     const tax = Math.round(subtotal * TAX_RATE);
     const total = subtotal + tax;
-
     if (total <= 0) return json(400, { error: 'Order total must be greater than zero' });
+
+    // Write a PENDING order now. The cart lives in our DB, not Stripe metadata.
+    const { data: order, error: orderErr } = await db
+      .from('orders')
+      .insert({
+        short_code: shortCode(),
+        contact_name: contact?.name || null,
+        contact_phone: contact?.channel === 'sms' ? (contact?.phone || null) : null,
+        contact_email: contact?.channel === 'email' ? (contact?.email || null) : null,
+        preferred_channel: contact?.channel || 'sms',
+        status: 'pending',
+        subtotal_cents: subtotal,
+        tax_cents: tax,
+        total_cents: total,
+      })
+      .select('id')
+      .single();
+    if (orderErr) throw orderErr;
+
+    const rows = lineItems.map((li) => ({ ...li, order_id: order.id }));
+    const { error: itemsErr } = await db.from('order_items').insert(rows);
+    if (itemsErr) throw itemsErr;
+
+    const saveInfo = contact?.saveInfo ? 'true' : 'false';
 
     const intent = await stripe.paymentIntents.create({
       amount: total,
       currency: 'usd',
       automatic_payment_methods: { enabled: true },
       metadata: {
-        contact_name: contact?.name || '',
-        contact_phone: contact?.phone || '',
-        contact_email: contact?.email || '',
-        preferred_channel: contact?.channel || 'sms',
-        line_items: JSON.stringify(lineItems).slice(0, 4900),
-        subtotal_cents: String(subtotal),
-        tax_cents: String(tax),
-        total_cents: String(total),
+        order_id: order.id,
+        save_info: saveInfo,
       },
     });
 
-    return json(200, { clientSecret: intent.client_secret, subtotal, tax, total });
+    await db.from('orders').update({ stripe_payment_intent_id: intent.id }).eq('id', order.id);
+
+    return json(200, { clientSecret: intent.client_secret, order_id: order.id, subtotal, tax, total });
   } catch (err) {
     return json(500, { error: err.message });
   }

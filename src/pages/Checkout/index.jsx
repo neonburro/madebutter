@@ -4,6 +4,7 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import Wordmark from '../../components/Brand/Wordmark';
+import ButterMark from '../../components/Brand/ButterMark';
 import CheckoutSummary from './components/CheckoutSummary';
 import CheckoutFlow from './components/CheckoutFlow';
 
@@ -11,9 +12,12 @@ export default function Checkout() {
   const { count } = useCart();
 
   return (
-    <main className="mx-auto w-full max-w-lg px-6 py-10">
+    <main className="mx-auto w-full max-w-lg px-4 py-8 sm:px-6 sm:py-10">
       <Link to="/" className="text-sm" style={{ color: 'var(--mb-text-muted)' }}>← back to menu</Link>
-      <div className="mt-6 mb-8"><Wordmark className="text-2xl" /></div>
+      <div className="mt-6 mb-8 flex items-center gap-2.5">
+        <ButterMark size={32} />
+        <Wordmark className="text-2xl" />
+      </div>
 
       {count === 0 ? (
         <p className="text-sm" style={{ color: 'var(--mb-text-muted)' }}>Your cart is empty.</p>

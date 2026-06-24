@@ -167,17 +167,20 @@ export default function CheckoutFlow() {
           className="w-full rounded-xl px-3 py-3 text-sm outline-none" style={fieldStyle} />
       )}
 
-      <label className="mt-4 flex items-start gap-2.5 text-xs" style={{ color: 'var(--mb-text-secondary)' }}>
+      <label
+        className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl p-3.5 text-xs transition-colors"
+        style={{ border: '1px solid var(--mb-surface-line-strong)', background: saveInfo ? 'rgba(168,184,154,0.10)' : 'var(--mb-surface-base)', color: 'var(--mb-text-secondary)' }}
+      >
         <input
           type="checkbox"
           checked={saveInfo}
           onChange={(e) => set({ saveInfo: e.target.checked })}
-          className="mt-0.5 h-4 w-4 flex-shrink-0 accent-[#A8B89A]"
+          className="mt-0.5 h-5 w-5 flex-shrink-0 accent-[#A8B89A]"
         />
-        <span>
+        <span className="leading-relaxed">
           Save my info for rewards and faster checkout next time. We'll only message you about your orders. See our{' '}
-          <Link to="/terms/" className="underline">terms</Link> and{' '}
-          <Link to="/privacy/" className="underline">privacy policy</Link>.
+          <Link to="/terms/" className="underline" onClick={(e) => e.stopPropagation()}>terms</Link> and{' '}
+          <Link to="/privacy/" className="underline" onClick={(e) => e.stopPropagation()}>privacy policy</Link>.
         </span>
       </label>
 
