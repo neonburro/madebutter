@@ -2,7 +2,7 @@
 // Menu management. Categories -> groups -> items. Drag items to reorder (dnd-kit),
 // tap to edit, add new items per group. Order persists to sort_order.
 import { useEffect, useState, useCallback } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Boxes } from 'lucide-react';
 import {
   DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors,
 } from '@dnd-kit/core';
@@ -13,6 +13,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { supabase, menuImageUrl } from '../../../lib/supabase';
 import { persistOrder } from './menuActions';
 import ItemEditModal from './ItemEditModal';
+import BulkInventoryModal from './BulkInventoryModal';
 
 function SortableItem({ item, onEdit }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
@@ -85,6 +86,7 @@ export default function AdminMenu() {
   const [cats, setCats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
+  const [bulkOpen, setBulkOpen] = useState(false);
 
   const load = useCallback(async (quiet = false) => {
     if (!quiet) setLoading(true);
@@ -105,7 +107,6 @@ export default function AdminMenu() {
   useEffect(() => { load(); }, [load]);
 
   const onSaved = () => { setEditing(null); load(true); };
-  const onSavedQuiet = () => { load(true); };
 
   const onReorder = async (groupId, reordered) => {
     setCats((prev) => prev.map((c) => ({
@@ -123,8 +124,19 @@ export default function AdminMenu() {
 
   return (
     <div className="px-4 py-6 sm:px-8">
-      <h1 className="text-2xl font-semibold" style={{ letterSpacing: 'var(--tracking-heading)' }}>Menu</h1>
-      <p className="mt-1 text-sm" style={{ color: 'var(--mb-text-muted)' }}>Drag to reorder. Tap to edit. Use + to add an item.</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold" style={{ letterSpacing: 'var(--tracking-heading)' }}>Menu</h1>
+          <p className="mt-1 text-sm" style={{ color: 'var(--mb-text-muted)' }}>Drag to reorder. Tap to edit. Use + to add an item.</p>
+        </div>
+        <button
+          onClick={() => setBulkOpen(true)}
+          className="flex flex-shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold"
+          style={{ background: 'var(--mb-accent-butter)', color: 'var(--mb-text-primary)' }}
+        >
+          <Boxes size={16} /> Bulk inventory
+        </button>
+      </div>
 
       {cats.map((c) => (
         <section key={c.id} className="mt-8">
@@ -140,7 +152,8 @@ export default function AdminMenu() {
         </section>
       ))}
 
-      <ItemEditModal item={editing} onClose={() => setEditing(null)} onSaved={onSaved} onSavedQuiet={onSavedQuiet} />
+      <ItemEditModal item={editing} onClose={() => setEditing(null)} onSaved={onSaved} />
+      <BulkInventoryModal open={bulkOpen} onClose={() => setBulkOpen(false)} onSaved={() => load(true)} />
     </div>
   );
 }

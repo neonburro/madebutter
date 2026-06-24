@@ -2,13 +2,12 @@
 // Admin chrome: side nav on desktop, bottom nav on mobile. Same butter system.
 // Renders the active section via nested <Outlet/>.
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutGrid, UtensilsCrossed, Boxes, Image, Receipt, LogOut } from 'lucide-react';
+import { LayoutGrid, UtensilsCrossed, Image, Receipt, LogOut } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 
 const NAV = [
   { to: '/admin/', end: true, label: 'Home', icon: LayoutGrid },
   { to: '/admin/menu/', label: 'Menu', icon: UtensilsCrossed },
-  { to: '/admin/inventory/', label: 'Inventory', icon: Boxes },
   { to: '/admin/hero/', label: 'Hero', icon: Image },
   { to: '/admin/orders/', label: 'Orders', icon: Receipt },
 ];
