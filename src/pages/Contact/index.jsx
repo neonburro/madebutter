@@ -1,20 +1,23 @@
 // src/pages/Contact/index.jsx
-// Contact page. Funny "what are you inquiring about" picker, name, contact, message.
-// Posts to the contact Netlify function which emails the shop. Logo links home.
-// No back button. Clean voice, no em dashes, oxford commas or colons.
+// Contact page. Desktop: two-panel (matcha info panel left, form right). Mobile:
+// stacked. Topic is tappable pills, not a dropdown. Six topics incl Suggestion Box,
+// which nudges to the dedicated suggestion page. Hours, address, phone. Logo links
+// home, no back button. Clean voice, no em dashes, oxford commas or colons.
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ButterMark from '../../components/Brand/ButterMark';
 
+const SAGE = '#A8B89A';
+const SAGE_DEEP = '#3F4A3A';
+const INK = '#161412';
+
 const TOPICS = [
   'just saying hi',
   'a big order or catering',
-  'something went sideways with my order',
-  'i have a flavor idea you need to make',
-  'wholesale or stocking madebutter',
-  'press or collab',
-  'i want to work here',
-  'something else entirely',
+  'something went sideways',
+  'i have a business idea',
+  'i want in on what you are building',
+  'suggestion box',
 ];
 
 export default function Contact() {
@@ -28,6 +31,7 @@ export default function Contact() {
 
   const field = { border: '1px solid var(--mb-surface-line-strong)', background: 'var(--mb-surface-base)' };
   const valid = name.trim() && contact.trim() && message.trim();
+  const isSuggestion = topic === 'suggestion box';
 
   const submit = async () => {
     if (!valid) { setError('Add your name, a way to reach you and a message.'); return; }
@@ -52,10 +56,10 @@ export default function Contact() {
   if (sent) {
     return (
       <main className="mx-auto flex min-h-[80vh] w-full max-w-md flex-col items-center justify-center px-6 text-center">
-        <Link to="/" aria-label="madebutter. home"><ButterMark size={72} /></Link>
+        <Link to="/" aria-label="madebutter. home"><ButterMark size={84} /></Link>
         <h1 className="mt-6 text-2xl font-bold">Got it. Thanks {name.split(' ')[0]}.</h1>
         <p className="mt-3 text-sm" style={{ color: 'var(--mb-text-secondary)' }}>
-          We will get back to you soon. If it is urgent, give us a ring at (970) 696-7575.
+          We will get back to you soon. If it is urgent, ring us at (970) 696-7575.
         </p>
         <Link to="/" className="mt-8 rounded-full px-6 py-3 text-sm font-semibold" style={{ background: 'var(--mb-dark-base)', color: 'var(--mb-dark-text)' }}>
           Back to the good stuff
@@ -64,29 +68,69 @@ export default function Contact() {
     );
   }
 
-  return (
-    <main className="mx-auto w-full max-w-md px-6 py-12">
-      <div className="flex flex-col items-center text-center">
-        <Link to="/" aria-label="madebutter. home"><ButterMark size={64} /></Link>
-        <h1 className="mt-5 text-3xl font-bold" style={{ letterSpacing: 'var(--tracking-heading)' }}>Say hello</h1>
-        <p className="mt-2 text-sm" style={{ color: 'var(--mb-text-secondary)' }}>
-          Questions, ideas, big orders, or just butter appreciation. We read all of it.
-        </p>
-      </div>
+  const InfoPanel = (
+    <div className="flex flex-col">
+      <Link to="/" aria-label="madebutter. home"><ButterMark size={84} /></Link>
+      <h1 className="mt-6 text-4xl font-bold" style={{ letterSpacing: 'var(--tracking-heading)', color: INK }}>Say hello</h1>
+      <p className="mt-3 text-sm leading-relaxed" style={{ color: SAGE_DEEP }}>
+        Questions, ideas, big orders, or just butter appreciation. We read all of it.
+      </p>
 
-      <div className="mt-8 space-y-3">
+      <div className="mt-8 space-y-4 text-sm" style={{ color: INK }}>
+        <div>
+          <p className="text-xs font-semibold uppercase" style={{ letterSpacing: '0.1em', color: SAGE_DEEP }}>hours</p>
+          <p className="mt-1 font-medium">every day, 6am to 9pm</p>
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase" style={{ letterSpacing: '0.1em', color: SAGE_DEEP }}>find us</p>
+          <p className="mt-1 font-medium">100 Campbell Lane, Ridgway, CO 81432</p>
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase" style={{ letterSpacing: '0.1em', color: SAGE_DEEP }}>call</p>
+          <a href="tel:+19706967575" className="mt-1 block font-medium">(970) 696-7575</a>
+        </div>
+      </div>
+    </div>
+  );
+
+  const Form = (
+    <div>
+      <div className="space-y-3">
         <input value={name} onChange={(e) => setName(e.target.value)} placeholder="your name"
           className="w-full rounded-2xl px-4 py-3.5 text-sm outline-none" style={field} />
         <input value={contact} onChange={(e) => setContact(e.target.value)} placeholder="email or phone"
           className="w-full rounded-2xl px-4 py-3.5 text-sm outline-none" style={field} />
 
         <div>
-          <label className="mb-1 block px-1 text-xs font-medium" style={{ color: 'var(--mb-text-muted)' }}>what are you inquiring about</label>
-          <select value={topic} onChange={(e) => setTopic(e.target.value)}
-            className="w-full rounded-2xl px-4 py-3.5 text-sm outline-none" style={field}>
-            {TOPICS.map((t) => <option key={t} value={t}>{t}</option>)}
-          </select>
+          <p className="mb-2 px-1 text-xs font-medium" style={{ color: 'var(--mb-text-muted)' }}>what are you inquiring about</p>
+          <div className="flex flex-wrap gap-2">
+            {TOPICS.map((t) => {
+              const active = topic === t;
+              return (
+                <button
+                  key={t}
+                  onClick={() => setTopic(t)}
+                  className="rounded-full px-3.5 py-2 text-xs font-medium transition-colors"
+                  style={{
+                    border: `1px solid ${active ? INK : 'var(--mb-surface-line-strong)'}`,
+                    background: active ? INK : 'var(--mb-surface-base)',
+                    color: active ? '#fff' : 'var(--mb-text-secondary)',
+                  }}
+                >
+                  {t}
+                </button>
+              );
+            })}
+          </div>
         </div>
+
+        {isSuggestion && (
+          <div className="rounded-2xl p-4 text-xs leading-relaxed" style={{ background: `${SAGE}22`, color: SAGE_DEEP }}>
+            Quick heads up. Real flavor ideas belong in the{' '}
+            <Link to="/suggest/" className="font-semibold underline" style={{ color: INK }}>suggestion box</Link>.
+            It timestamps your idea so if it becomes a hit, we know it was yours and we reward you the madebutter way.
+          </div>
+        )}
 
         <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="tell us everything" rows={5}
           className="w-full rounded-2xl px-4 py-3.5 text-sm outline-none" style={field} />
@@ -99,10 +143,18 @@ export default function Contact() {
           {busy ? 'Sending…' : 'Send it'}
         </button>
       </div>
+    </div>
+  );
 
-      <div className="mt-10 border-t pt-6 text-center text-sm" style={{ borderColor: 'var(--mb-surface-line)', color: 'var(--mb-text-secondary)' }}>
-        <p>100 Campbell Lane, Ridgway, CO 81432</p>
-        <p className="mt-1">(970) 696-7575</p>
+  return (
+    <main className="w-full">
+      <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-0 lg:min-h-[80vh] lg:grid-cols-2">
+        <div className="px-6 py-12 lg:px-12 lg:py-16" style={{ background: SAGE }}>
+          {InfoPanel}
+        </div>
+        <div className="px-6 py-12 lg:px-12 lg:py-16">
+          {Form}
+        </div>
       </div>
     </main>
   );

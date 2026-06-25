@@ -1,118 +1,109 @@
 // src/components/Footer/Footer.jsx
-// Mixed-direction footer: warm butter-black base, a mint + butter accent strip so
-// it pops, and a small lab-stamp line crediting Burroship as the operating parent
-// (kitchen, rewards, payments). Newsletter signup, link columns, bottom bar.
+// Matcha sage footer with black text and butter-yellow accents. Real working email
+// signup (rewards list) wired to the signup function. Trimmed Burroship line.
+// Bigger consistent wordmark. Clean voice, no em dashes, oxford commas or colons.
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-const MINT = '#A8B89A';
+const SAGE = '#A8B89A';
+const SAGE_DEEP = '#3F4A3A';
+const INK = '#161412';
+const BUTTER = '#F5D66B';
 
 export default function Footer() {
-  const [channel, setChannel] = useState('email');
-  const [value, setValue] = useState('');
+  const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
+  const [busy, setBusy] = useState(false);
 
-  const submit = () => {
-    if (!value.trim()) return;
-    setDone(true);
+  const submit = async () => {
+    if (!/\S+@\S+\.\S+/.test(email) || busy) return;
+    setBusy(true);
+    try {
+      await fetch('/.netlify/functions/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'footer' }),
+      });
+      setDone(true);
+    } catch {
+      setDone(true);
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
-    <footer style={{ background: 'var(--mb-dark-base)', color: 'var(--mb-dark-text)' }}>
-      <div style={{ height: '4px', background: `linear-gradient(90deg, ${MINT} 0%, var(--mb-accent-butter) 100%)` }} />
+    <footer style={{ background: SAGE, color: INK }}>
+      <div style={{ height: '4px', background: `linear-gradient(90deg, ${INK} 0%, ${BUTTER} 100%)` }} />
 
       <div className="mx-auto w-[98%] py-16">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-16">
           <div>
-            <div className="text-3xl font-semibold lowercase" style={{ letterSpacing: 'var(--tracking-logo)' }}>
-              madebutter<span style={{ color: 'var(--mb-dark-accent)' }}>.</span>
+            <div className="text-4xl font-bold lowercase" style={{ letterSpacing: 'var(--tracking-logo)' }}>
+              madebutter<span style={{ color: '#fff' }}>.</span>
             </div>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed" style={{ color: 'var(--mb-dark-muted)' }}>
+            <p className="mt-4 max-w-sm text-sm leading-relaxed" style={{ color: SAGE_DEEP }}>
               part bakery, part product lab. small batch donuts, kolaches, stuffed rolls and coffee. made fresh, packed clean, travel ready. order ahead or come on in.
             </p>
-            <p className="mt-4 text-sm" style={{ color: 'var(--mb-dark-muted)' }}>100 campbell lane, ridgway, colorado</p>
-            <a href="tel:+19706967575" className="mt-1 block text-sm" style={{ color: MINT }}>(970) 696-7575</a>
+            <p className="mt-4 text-sm font-medium">100 campbell lane, ridgway, colorado</p>
+            <a href="tel:+19706967575" className="mt-1 block text-sm font-semibold" style={{ color: INK }}>(970) 696-7575</a>
           </div>
 
           <div className="sm:max-w-sm sm:justify-self-end sm:w-full">
-            <p className="mb-3 text-xs font-medium lowercase" style={{ letterSpacing: '0.10em', color: MINT }}>
-              get the good stuff
+            <p className="mb-3 text-xs font-semibold uppercase" style={{ letterSpacing: '0.12em', color: SAGE_DEEP }}>
+              join the list
             </p>
 
             {done ? (
-              <p className="text-sm" style={{ color: MINT }}>you're in. talk soon.</p>
+              <p className="text-sm font-medium">you're on the list. check your email.</p>
             ) : (
               <>
-                <div className="mb-2 flex gap-2">
-                  {['email', 'sms'].map((c) => {
-                    const active = channel === c;
-                    return (
-                      <button
-                        key={c}
-                        onClick={() => { setChannel(c); setValue(''); }}
-                        className="flex-1 rounded-lg py-2 text-xs font-medium lowercase transition-colors"
-                        style={{
-                          border: `1px solid ${active ? 'var(--mb-dark-accent)' : 'var(--mb-dark-line)'}`,
-                          background: active ? 'rgba(255,224,138,0.12)' : 'transparent',
-                          color: active ? 'var(--mb-dark-accent)' : 'var(--mb-dark-muted)',
-                        }}
-                      >
-                        {c === 'email' ? 'email' : 'text'}
-                      </button>
-                    );
-                  })}
-                </div>
                 <div className="flex gap-2">
                   <input
-                    value={value}
-                    onChange={(e) => setValue(e.target.value)}
-                    placeholder={channel === 'email' ? 'you@email.com' : 'phone number'}
-                    inputMode={channel === 'email' ? 'email' : 'tel'}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && submit()}
+                    placeholder="your email"
+                    inputMode="email"
                     className="flex-1 rounded-lg px-3 py-2.5 text-sm outline-none"
-                    style={{ background: 'var(--mb-dark-raised)', color: 'var(--mb-dark-text)', border: '1px solid var(--mb-dark-line)' }}
+                    style={{ background: '#fff', color: INK, border: `1px solid ${SAGE_DEEP}33` }}
                   />
                   <button
                     onClick={submit}
-                    className="rounded-lg px-4 py-2.5 text-sm font-semibold lowercase"
-                    style={{ background: 'var(--mb-accent-butter)', color: 'var(--mb-text-primary)' }}
+                    disabled={busy}
+                    className="rounded-lg px-5 py-2.5 text-sm font-bold lowercase disabled:opacity-60"
+                    style={{ background: INK, color: BUTTER }}
                   >
-                    join
+                    {busy ? '...' : 'join'}
                   </button>
                 </div>
-                <p className="mt-3 text-xs leading-relaxed" style={{ color: 'var(--mb-dark-muted)' }}>
-                  rewards are coming through burroship.{' '}
-                  <a href="https://burroship.com/rewards" target="_blank" rel="noopener noreferrer" style={{ color: MINT }}>
-                    peek at the program
-                  </a>
+                <p className="mt-3 text-xs leading-relaxed" style={{ color: SAGE_DEEP }}>
+                  early flavors, the occasional treat, and rewards once the burroship program lands.
                 </p>
               </>
             )}
           </div>
         </div>
 
-        <div className="mt-14 flex flex-wrap gap-x-8 gap-y-3 text-sm lowercase" style={{ color: 'var(--mb-dark-muted)' }}>
+        <div className="mt-14 flex flex-wrap gap-x-8 gap-y-3 text-sm font-medium lowercase" style={{ color: SAGE_DEEP }}>
           <Link to="/contact/">contact</Link>
+          <Link to="/suggest/">suggestion box</Link>
           <Link to="/terms/">terms</Link>
           <Link to="/privacy/">privacy</Link>
           <a href="https://burroship.com/rewards" target="_blank" rel="noopener noreferrer">rewards</a>
         </div>
 
-        <div className="mt-10 flex flex-col gap-3 border-t pt-6 text-xs lowercase sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: 'var(--mb-dark-line)', color: 'var(--mb-dark-muted)' }}>
-          <span>© {new Date().getFullYear()} madebutter.</span>
+        <div className="mt-10 flex flex-col gap-3 border-t pt-6 text-xs lowercase sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: `${SAGE_DEEP}33`, color: SAGE_DEEP }}>
+          <span>© {new Date().getFullYear()} madebutter. a burroship brand.</span>
           <div className="flex items-center gap-5">
-            <Link to="/admin/" style={{ color: 'var(--mb-dark-muted)' }}>back of house</Link>
+            <Link to="/admin/" style={{ color: SAGE_DEEP }}>back of house</Link>
             <span>
               powered by{' '}
-              <a href="https://neonburro.com" target="_blank" rel="noopener noreferrer" style={{ color: MINT }}>
+              <a href="https://neonburro.com" target="_blank" rel="noopener noreferrer" style={{ color: INK, fontWeight: 600 }}>
                 neonburro
               </a>
             </span>
           </div>
-        </div>
-
-        <div className="mt-8 rounded-xl px-4 py-3 text-center text-[11px] uppercase" style={{ background: 'var(--mb-dark-raised)', color: 'var(--mb-dark-muted)', letterSpacing: '0.12em' }}>
-          kitchen, rewards and payments operated by{' '}
-          <a href="https://burroship.com" target="_blank" rel="noopener noreferrer" style={{ color: MINT }}>burroship</a>
         </div>
       </div>
     </footer>
