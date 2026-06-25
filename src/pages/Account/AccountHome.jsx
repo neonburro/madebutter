@@ -1,6 +1,6 @@
 // src/pages/Account/AccountHome.jsx
-// Logged-in customer home. Greeting, their order history, promo opt-in toggle,
-// sign out. RLS ensures they only ever see their own orders.
+// Logged-in customer home. Greeting, promo opt-in, change password, order history.
+// RLS ensures they only ever see their own orders.
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
@@ -13,9 +13,12 @@ function when(iso) {
 }
 
 export default function AccountHome() {
-  const { customer, firstName, signOut, updateProfile } = useCustomerAuth();
+  const { customer, firstName, signOut, updateProfile, changePassword } = useCustomerAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pwOpen, setPwOpen] = useState(false);
+  const [newPw, setNewPw] = useState('');
+  const [pwMsg, setPwMsg] = useState(null);
 
   useEffect(() => {
     if (!customer) return;
@@ -34,6 +37,16 @@ export default function AccountHome() {
 
   const togglePromos = () => updateProfile({ email_opt_in: !customer.email_opt_in });
 
+  const savePassword = async () => {
+    setPwMsg(null);
+    if (newPw.length < 6) { setPwMsg('Use at least 6 characters.'); return; }
+    const err = await changePassword(newPw);
+    if (err) { setPwMsg(err.message); return; }
+    setPwMsg('Password updated.');
+    setNewPw('');
+    setPwOpen(false);
+  };
+
   return (
     <main className="mx-auto w-full max-w-lg px-4 py-8 sm:px-6">
       <div className="flex items-center justify-between">
@@ -51,6 +64,25 @@ export default function AccountHome() {
             <span className="absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform" style={{ transform: customer.email_opt_in ? 'translateX(22px)' : 'translateX(2px)' }} />
           </span>
         </label>
+      </div>
+
+      <div className="mt-3 rounded-2xl p-4" style={{ border: '1px solid var(--mb-surface-line)' }}>
+        {!pwOpen ? (
+          <button onClick={() => { setPwOpen(true); setPwMsg(null); }} className="flex w-full items-center justify-between text-sm" style={{ color: 'var(--mb-text-secondary)' }}>
+            <span>Change password</span>
+            <span style={{ color: 'var(--mb-text-muted)' }}>edit</span>
+          </button>
+        ) : (
+          <div className="space-y-3">
+            <input value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="new password" type="password"
+              className="w-full rounded-xl px-3 py-3 text-sm outline-none" style={{ border: '1px solid var(--mb-surface-line-strong)', background: 'var(--mb-surface-base)' }} />
+            <div className="flex gap-2">
+              <button onClick={savePassword} className="flex-1 rounded-full py-2.5 text-sm font-semibold" style={{ background: 'var(--mb-dark-base)', color: 'var(--mb-dark-text)' }}>Save</button>
+              <button onClick={() => { setPwOpen(false); setNewPw(''); setPwMsg(null); }} className="rounded-full px-4 py-2.5 text-sm" style={{ color: 'var(--mb-text-muted)' }}>cancel</button>
+            </div>
+          </div>
+        )}
+        {pwMsg && <p className="mt-2 text-xs" style={{ color: pwMsg === 'Password updated.' ? '#7AA85A' : 'var(--mb-accent-toast)' }}>{pwMsg}</p>}
       </div>
 
       <h2 className="mt-8 mb-3 text-sm font-medium uppercase" style={{ letterSpacing: '0.08em', color: 'var(--mb-text-muted)' }}>Your orders</h2>

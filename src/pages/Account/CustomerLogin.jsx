@@ -1,8 +1,8 @@
 // src/pages/Account/CustomerLogin.jsx
-// Clean customer login + signup. Two inputs, placeholder text inside, butter mark,
-// no title. Toggles between sign in and create account. Same styling language.
+// Clean customer login + signup. Two inputs, placeholder text inside, big butter
+// mark that links home, no title. Toggles between sign in, create account, reset.
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import ButterMark from '../../components/Brand/ButterMark';
 
@@ -34,7 +34,7 @@ export default function CustomerLogin() {
     setBusy(false);
     if (err) { setError(err.message); return; }
     if (mode === 'up') {
-      setNotice('Account created. You can sign in now.');
+      setNotice('Almost there. Check your email to verify your account, then you are in.');
       setMode('in');
       return;
     }
@@ -43,7 +43,9 @@ export default function CustomerLogin() {
 
   return (
     <main className="mx-auto flex min-h-[80vh] w-full max-w-sm flex-col items-center justify-center px-6">
-      <ButterMark size={56} />
+      <Link to="/" aria-label="madebutter. home">
+        <ButterMark size={88} />
+      </Link>
 
       <div className="mt-8 w-full space-y-3">
         {mode === 'up' && (

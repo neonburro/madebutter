@@ -44,7 +44,14 @@ export function CustomerAuthProvider({ children }) {
   }, [loadCustomer]);
 
   const signUp = useCallback(async (email, password, name) => {
-    const { error } = await supabase.auth.signUp({ email, password, options: { data: { name } } });
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name },
+        emailRedirectTo: `${window.location.origin}/account/`,
+      },
+    });
     return error;
   }, []);
 
@@ -65,6 +72,11 @@ export function CustomerAuthProvider({ children }) {
     return error;
   }, []);
 
+  const changePassword = useCallback(async (newPassword) => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    return error;
+  }, []);
+
   const updateProfile = useCallback(async (patch) => {
     if (!customer) return 'Not signed in';
     const { error } = await supabase.from('customers').update(patch).eq('id', customer.id);
@@ -78,8 +90,8 @@ export function CustomerAuthProvider({ children }) {
     session, customer, loading,
     isCustomer: !!customer,
     firstName,
-    signUp, signIn, signOut, sendReset, updateProfile,
-  }), [session, customer, loading, firstName, signUp, signIn, signOut, sendReset, updateProfile]);
+    signUp, signIn, signOut, sendReset, updateProfile, changePassword,
+  }), [session, customer, loading, firstName, signUp, signIn, signOut, sendReset, updateProfile, changePassword]);
 
   return <CustomerAuthContext.Provider value={value}>{children}</CustomerAuthContext.Provider>;
 }
