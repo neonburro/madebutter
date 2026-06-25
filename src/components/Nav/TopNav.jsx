@@ -1,8 +1,9 @@
 // src/components/Nav/TopNav.jsx
 // Smooth nav. At top: clean, logo legible over dark heroes via a soft chip. Scroll
-// down hides, scroll up returns solid. Desktop: logo + wide account pill. Mobile:
-// logo + donut button that opens a clean slide-down drawer. When signed in the
-// drawer reveals a "my donuts." tab into the profile world.
+// down hides, scroll up returns solid. The donut button is the single entry point on
+// every viewport: signed out it is icon only, signed in it elongates to "Hi name".
+// Tapping it always opens the slide-down drawer. Inside, guests get an invite to
+// join, members get "my donuts." No em dashes, oxford commas or colons.
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -65,20 +66,18 @@ export default function TopNav() {
             <img src="/madebutter-logo.png" alt="madebutter." className="h-11 w-auto sm:h-14" />
           </Link>
 
-          <Link
-            to={isCustomer ? '/account/' : '/account/login/'}
-            aria-label={isCustomer ? 'Your account' : 'Sign in'}
-            className="hidden items-center gap-2 rounded-full px-6 py-3 text-sm font-medium sm:flex"
-            style={{ background: 'var(--mb-text-primary)', color: 'var(--mb-text-inverse)' }}
+          <button
+            onClick={() => setMenuOpen(true)}
+            aria-label={isCustomer ? 'Your account and menu' : 'Open menu'}
+            className="flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition-all"
+            style={{
+              background: 'var(--mb-text-primary)',
+              color: 'var(--mb-text-inverse)',
+              padding: isCustomer ? '0.7rem 1.4rem' : '0.7rem',
+            }}
           >
-            <Donut size={18} strokeWidth={2} color="#F5D66B" />
-            <span>{isCustomer ? `Hi ${firstName || 'there'}` : 'sign in'}</span>
-          </Link>
-
-          <button onClick={() => setMenuOpen(true)} aria-label="Open menu" className="sm:hidden">
-            <span className="inline-flex items-center justify-center rounded-full" style={{ ...chip, padding: solid ? 8 : 10, background: solid ? 'var(--mb-surface-paper)' : 'rgba(255,255,255,0.82)' }}>
-              <Donut size={24} strokeWidth={2} color="#161412" />
-            </span>
+            <Donut size={22} strokeWidth={2} color="#F5D66B" />
+            {isCustomer && <span>Hi {firstName || 'there'}</span>}
           </button>
         </div>
       </motion.header>
@@ -87,15 +86,15 @@ export default function TopNav() {
         {menuOpen && (
           <>
             <motion.div
-              className="fixed inset-0 z-[60] sm:hidden"
+              className="fixed inset-0 z-[60]"
               style={{ background: 'rgba(15,14,13,0.4)' }}
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setMenuOpen(false)}
             />
             <motion.div
-              className="fixed inset-x-0 top-0 z-[60] rounded-b-3xl px-6 pb-8 pt-5 sm:hidden"
-              style={{ background: 'var(--mb-surface-base)' }}
-              initial={{ y: '-100%' }} animate={{ y: 0 }} exit={{ y: '-100%' }}
+              className="fixed inset-x-0 top-0 z-[60] mx-auto w-full max-w-md rounded-b-3xl px-6 pb-8 pt-5 sm:left-auto sm:right-4 sm:mx-0 sm:mt-3 sm:rounded-3xl"
+              style={{ background: 'var(--mb-surface-base)', boxShadow: '0 12px 40px rgba(0,0,0,0.18)' }}
+              initial={{ y: '-100%', opacity: 0.6 }} animate={{ y: 0, opacity: 1 }} exit={{ y: '-100%', opacity: 0.6 }}
               transition={{ type: 'spring', stiffness: 320, damping: 34 }}
             >
               <div className="flex items-center justify-between">
@@ -107,26 +106,36 @@ export default function TopNav() {
                 </button>
               </div>
 
-              <Link
-                to={isCustomer ? '/account/' : '/account/login/'}
-                onClick={() => setMenuOpen(false)}
-                className="mt-6 flex items-center justify-center gap-2 rounded-full py-4 text-base font-semibold"
-                style={{ background: 'var(--mb-text-primary)', color: 'var(--mb-text-inverse)' }}
-              >
-                <Donut size={20} strokeWidth={2} color="#F5D66B" />
-                {isCustomer ? `Hi ${firstName || 'there'}` : 'sign in'}
-              </Link>
-
-              {isCustomer && (
-                <Link
-                  to="/account/"
-                  onClick={() => setMenuOpen(false)}
-                  className="mt-3 flex items-center justify-center gap-2 rounded-full py-4 text-base font-bold lowercase"
-                  style={{ background: 'var(--mb-surface-paper)', color: 'var(--mb-text-primary)' }}
-                >
-                  <Donut size={20} strokeWidth={2} color="#161412" />
-                  my donuts<span style={{ color: '#F5D66B' }}>.</span>
-                </Link>
+              {isCustomer ? (
+                <>
+                  <p className="mt-6 text-2xl font-bold">Hi {firstName || 'there'}.</p>
+                  <Link
+                    to="/account/"
+                    onClick={() => setMenuOpen(false)}
+                    className="mt-4 flex items-center justify-center gap-2 rounded-full py-4 text-lg font-bold lowercase"
+                    style={{ background: 'var(--mb-text-primary)', color: 'var(--mb-text-inverse)' }}
+                  >
+                    <Donut size={22} strokeWidth={2} color="#F5D66B" />
+                    my donuts<span style={{ color: '#F5D66B' }}>.</span>
+                  </Link>
+                </>
+              ) : (
+                <div className="mt-6 rounded-3xl p-6 text-center" style={{ background: 'var(--mb-surface-paper)' }}>
+                  <Donut size={40} strokeWidth={2} color="#161412" className="mx-auto" />
+                  <p className="mt-3 text-2xl font-bold">start collecting donuts</p>
+                  <p className="mt-2 text-base font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>
+                    every order earns you donuts. sign in or create an account to start your stash.
+                  </p>
+                  <Link
+                    to="/account/login/"
+                    onClick={() => setMenuOpen(false)}
+                    className="mt-5 flex items-center justify-center gap-2 rounded-full py-4 text-base font-bold"
+                    style={{ background: 'var(--mb-text-primary)', color: 'var(--mb-text-inverse)' }}
+                  >
+                    <Donut size={20} strokeWidth={2} color="#F5D66B" />
+                    sign in or join
+                  </Link>
+                </div>
               )}
 
               <nav className="mt-6 flex flex-col gap-1">

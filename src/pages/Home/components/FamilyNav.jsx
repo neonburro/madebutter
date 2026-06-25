@@ -38,13 +38,13 @@ export default function FamilyNav({ categories }) {
             <button
               key={c.id}
               onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })}
-              className="relative flex-shrink-0 text-sm font-medium transition-colors"
+              className="relative flex-shrink-0 text-base font-bold transition-colors sm:text-lg"
               style={{ color: isActive ? 'var(--mb-text-primary)' : 'var(--mb-text-muted)' }}
             >
               {c.name}
               {isActive && (
                 <span
-                  className="absolute -bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full"
+                  className="absolute -bottom-1.5 left-1/2 h-2 w-2 -translate-x-1/2 rounded-full"
                   style={{ background: 'var(--mb-accent-butter)' }}
                 />
               )}
