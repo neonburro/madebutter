@@ -37,32 +37,33 @@ export default function TopNav() {
       className="fixed inset-x-0 top-0 z-50"
       style={{
         background: transparent ? 'transparent' : 'rgba(255,255,255,0.92)',
-        backdropFilter: transparent ? 'none' : 'saturate(180%) blur(12px)',
-        boxShadow: transparent ? 'none' : '0 1px 0 rgba(0,0,0,0.05)',
-        transition: 'background 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease',
+        backdropFilter: transparent ? 'none' : 'blur(8px)',
+        WebkitBackdropFilter: transparent ? 'none' : 'blur(8px)',
+        borderBottom: transparent ? '1px solid transparent' : '1px solid var(--mb-surface-line)',
+        transition: 'background 0.3s ease, border-color 0.3s ease',
       }}
     >
-      <div className="mx-auto flex max-w-screen-xl items-center justify-between px-4 py-3 sm:px-6">
+      <div className="mx-auto flex w-[98%] items-center justify-between py-3">
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           aria-label="madebutter. home"
           style={{ filter: transparent ? 'drop-shadow(0 1px 6px rgba(0,0,0,0.25))' : 'none', transition: 'filter 0.3s ease' }}
         >
-          <img src="/madebutter-logo.png" alt="madebutter." className="h-8 w-auto sm:h-9" />
+          <img src="/madebutter-logo.png" alt="madebutter." className="h-12 w-auto sm:h-14" />
         </button>
 
         <Link
           to={isCustomer ? '/account/' : '/account/login/'}
           aria-label={isCustomer ? 'Your account' : 'Sign in'}
-          className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition-colors"
+          className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors"
           style={
             transparent
               ? { background: 'rgba(255,255,255,0.9)', color: 'var(--mb-text-primary)', boxShadow: '0 1px 8px rgba(0,0,0,0.12)' }
-              : { background: 'transparent', color: 'var(--mb-text-primary)' }
+              : { background: 'var(--mb-text-primary)', color: 'var(--mb-text-inverse)' }
           }
         >
-          {isCustomer && <span className="hidden sm:inline">Hi {firstName || 'there'}</span>}
-          <Donut size={22} strokeWidth={2} color="#161412" />
+          <Donut size={20} strokeWidth={2} color={transparent ? '#161412' : '#F5D66B'} />
+          <span>{isCustomer ? `Hi ${firstName || 'there'}` : 'sign in'}</span>
         </Link>
       </div>
     </motion.header>
