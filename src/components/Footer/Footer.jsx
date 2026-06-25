@@ -1,8 +1,11 @@
 // src/components/Footer/Footer.jsx
-// Dark footer. Wordmark + blurb, signup, link columns, "back of house" admin link,
-// bottom bar. All copy lowercase per house style.
+// Mixed-direction footer: warm butter-black base, a mint + butter accent strip so
+// it pops, and a small lab-stamp line crediting Burroship as the operating parent
+// (kitchen, rewards, payments). Newsletter signup, link columns, bottom bar.
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+
+const MINT = '#A8B89A';
 
 export default function Footer() {
   const [channel, setChannel] = useState('email');
@@ -16,25 +19,28 @@ export default function Footer() {
 
   return (
     <footer style={{ background: 'var(--mb-dark-base)', color: 'var(--mb-dark-text)' }}>
+      <div style={{ height: '4px', background: `linear-gradient(90deg, ${MINT} 0%, var(--mb-accent-butter) 100%)` }} />
+
       <div className="mx-auto w-[98%] py-16">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-16">
           <div>
-            <div className="text-2xl font-semibold lowercase" style={{ letterSpacing: 'var(--tracking-logo)' }}>
+            <div className="text-3xl font-semibold lowercase" style={{ letterSpacing: 'var(--tracking-logo)' }}>
               madebutter<span style={{ color: 'var(--mb-dark-accent)' }}>.</span>
             </div>
-            <p className="mt-3 max-w-sm text-sm leading-relaxed" style={{ color: 'var(--mb-dark-muted)' }}>
+            <p className="mt-4 max-w-sm text-sm leading-relaxed" style={{ color: 'var(--mb-dark-muted)' }}>
               part bakery, part product lab. small batch donuts, kolaches, stuffed rolls and coffee. made fresh, packed clean, travel ready. order ahead or come on in.
             </p>
-            <p className="mt-4 text-sm" style={{ color: 'var(--mb-dark-muted)' }}>ridgway, colorado</p>
+            <p className="mt-4 text-sm" style={{ color: 'var(--mb-dark-muted)' }}>100 campbell lane, ridgway, colorado</p>
+            <a href="tel:+19706967575" className="mt-1 block text-sm" style={{ color: MINT }}>(970) 696-7575</a>
           </div>
 
           <div className="sm:max-w-sm sm:justify-self-end sm:w-full">
-            <p className="mb-3 text-xs font-medium lowercase" style={{ letterSpacing: '0.10em', color: 'var(--mb-dark-muted)' }}>
+            <p className="mb-3 text-xs font-medium lowercase" style={{ letterSpacing: '0.10em', color: MINT }}>
               get the good stuff
             </p>
 
             {done ? (
-              <p className="text-sm" style={{ color: '#A8B89A' }}>you're in. talk soon.</p>
+              <p className="text-sm" style={{ color: MINT }}>you're in. talk soon.</p>
             ) : (
               <>
                 <div className="mb-2 flex gap-2">
@@ -73,17 +79,22 @@ export default function Footer() {
                     join
                   </button>
                 </div>
+                <p className="mt-3 text-xs leading-relaxed" style={{ color: 'var(--mb-dark-muted)' }}>
+                  rewards are coming through burroship.{' '}
+                  <a href="https://burroship.com/rewards" target="_blank" rel="noopener noreferrer" style={{ color: MINT }}>
+                    peek at the program
+                  </a>
+                </p>
               </>
             )}
           </div>
         </div>
 
         <div className="mt-14 flex flex-wrap gap-x-8 gap-y-3 text-sm lowercase" style={{ color: 'var(--mb-dark-muted)' }}>
-          <Link to="/about/">about</Link>
-          <Link to="/locations/">locations</Link>
           <Link to="/contact/">contact</Link>
           <Link to="/terms/">terms</Link>
           <Link to="/privacy/">privacy</Link>
+          <a href="https://burroship.com/rewards" target="_blank" rel="noopener noreferrer">rewards</a>
         </div>
 
         <div className="mt-10 flex flex-col gap-3 border-t pt-6 text-xs lowercase sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: 'var(--mb-dark-line)', color: 'var(--mb-dark-muted)' }}>
@@ -92,11 +103,16 @@ export default function Footer() {
             <Link to="/admin/" style={{ color: 'var(--mb-dark-muted)' }}>back of house</Link>
             <span>
               powered by{' '}
-              <a href="https://neonburro.com" target="_blank" rel="noopener noreferrer" style={{ color: '#A8B89A' }}>
+              <a href="https://neonburro.com" target="_blank" rel="noopener noreferrer" style={{ color: MINT }}>
                 neonburro
               </a>
             </span>
           </div>
+        </div>
+
+        <div className="mt-8 rounded-xl px-4 py-3 text-center text-[11px] uppercase" style={{ background: 'var(--mb-dark-raised)', color: 'var(--mb-dark-muted)', letterSpacing: '0.12em' }}>
+          kitchen, rewards and payments operated by{' '}
+          <a href="https://burroship.com" target="_blank" rel="noopener noreferrer" style={{ color: MINT }}>burroship</a>
         </div>
       </div>
     </footer>

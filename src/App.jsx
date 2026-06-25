@@ -9,6 +9,7 @@ import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
 import Admin from './pages/Admin';
 import Account from './pages/Account';
+import Contact from './pages/Contact';
 import Terms from './pages/Legal/Terms';
 import Privacy from './pages/Legal/Privacy';
 import NotFound from './pages/NotFound';
@@ -36,6 +37,8 @@ function App() {
             <Route path="/terms/" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/privacy/" element={<Privacy />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/contact/" element={<Contact />} />
             <Route path="/account/*" element={<Account />} />
             <Route path="/admin/*" element={<Admin />} />
             <Route path="*" element={<NotFound />} />

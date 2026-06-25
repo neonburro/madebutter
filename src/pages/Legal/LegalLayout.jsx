@@ -1,33 +1,48 @@
 // src/pages/Legal/LegalLayout.jsx
-// Shared shell for terms + privacy. Clean, readable, on-brand.
+// Shared shell for terms + privacy. Thin black banner hero with mint + butter
+// accents. The logo is the only way home (clickable), no back button.
 import { Link } from 'react-router-dom';
-import Wordmark from '../../components/Brand/Wordmark';
 
-export default function LegalLayout({ title, updated, children }) {
+const MINT = '#A8B89A';
+
+export default function LegalLayout({ title, intro, updated, children }) {
   return (
-    <main className="mx-auto w-full max-w-2xl px-6 py-10">
-      <Link to="/" className="text-sm" style={{ color: 'var(--mb-text-muted)' }}>← back to madebutter.</Link>
-      <div className="mt-6 mb-8"><Wordmark className="text-2xl" /></div>
-      <h1 className="text-3xl font-semibold" style={{ letterSpacing: 'var(--tracking-heading)' }}>{title}</h1>
-      {updated && <p className="mt-2 text-sm" style={{ color: 'var(--mb-text-muted)' }}>Last updated {updated}</p>}
-      <div className="mt-8 space-y-6 text-sm leading-relaxed" style={{ color: 'var(--mb-text-secondary)' }}>
-        {children}
+    <div className="w-full">
+      <div className="relative w-full overflow-hidden" style={{ background: 'var(--mb-dark-base)' }}>
+        <div style={{ height: '4px', background: `linear-gradient(90deg, ${MINT} 0%, var(--mb-accent-butter) 100%)` }} />
+        <div className="mx-auto w-[92%] max-w-3xl py-10">
+          <Link to="/" aria-label="madebutter. home" className="inline-block text-2xl font-semibold lowercase" style={{ color: 'var(--mb-dark-text)', letterSpacing: 'var(--tracking-logo)' }}>
+            madebutter<span style={{ color: 'var(--mb-dark-accent)' }}>.</span>
+          </Link>
+          <h1 className="mt-6 text-3xl font-bold sm:text-4xl" style={{ color: 'var(--mb-dark-text)', letterSpacing: 'var(--tracking-heading)' }}>
+            {title}
+          </h1>
+          {intro && <p className="mt-3 max-w-xl text-sm leading-relaxed" style={{ color: 'var(--mb-dark-muted)' }}>{intro}</p>}
+          {updated && <p className="mt-4 text-xs uppercase" style={{ color: MINT, letterSpacing: '0.1em' }}>Last updated {updated}</p>}
+        </div>
       </div>
-      <div className="mt-12 border-t pt-6 text-xs" style={{ borderColor: 'var(--mb-surface-line)', color: 'var(--mb-text-muted)' }}>
-        <Link to="/terms/" className="underline">terms</Link>
-        <span className="mx-2">·</span>
-        <Link to="/privacy/" className="underline">privacy</Link>
-        <span className="mx-2">·</span>
-        ridgway, colorado
-      </div>
-    </main>
+
+      <main className="mx-auto w-[92%] max-w-3xl py-12">
+        <div className="space-y-8 text-sm leading-relaxed" style={{ color: 'var(--mb-text-secondary)' }}>
+          {children}
+        </div>
+
+        <div className="mt-14 flex items-center gap-3 border-t pt-6 text-xs lowercase" style={{ borderColor: 'var(--mb-surface-line)', color: 'var(--mb-text-muted)' }}>
+          <Link to="/terms/" className="underline">terms</Link>
+          <span>·</span>
+          <Link to="/privacy/" className="underline">privacy</Link>
+          <span>·</span>
+          <span>ridgway, colorado</span>
+        </div>
+      </main>
+    </div>
   );
 }
 
 export function Section({ heading, children }) {
   return (
     <section>
-      <h2 className="mb-2 text-base font-semibold" style={{ color: 'var(--mb-text-primary)' }}>{heading}</h2>
+      <h2 className="mb-2 text-lg font-bold" style={{ color: 'var(--mb-text-primary)' }}>{heading}</h2>
       <div className="space-y-3">{children}</div>
     </section>
   );

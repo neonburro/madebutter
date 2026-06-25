@@ -1,61 +1,61 @@
 // src/pages/Legal/Terms.jsx
-// Plain-language terms of service. Starter template, not legal advice.
+// Plain-language terms. Honest and short. Names Burroship as the operating parent.
+// Not legal advice; have counsel review before heavy reliance.
 import LegalLayout, { Section } from './LegalLayout';
 
 export default function Terms() {
   return (
-    <LegalLayout title="Terms of Service" updated="June 2026">
+    <LegalLayout
+      title="Terms of Service"
+      intro="The short honest version of how ordering from madebutter works. Read it once and get back to the donuts."
+      updated="June 2026"
+    >
       <p>
-        These terms cover your use of madebutter. and our order-ahead service. By placing an order
-        you agree to them. We keep this short and honest.
+        madebutter. is a bakery and product lab in Ridgway, Colorado. The kitchen, the rewards program and payments are operated by Burroship, our parent company. By placing an order you agree to these terms.
       </p>
 
       <Section heading="Ordering and pickup">
         <p>
-          When you order through our site you are reserving items for pickup at our Ridgway location.
-          We prepare orders fresh. We will let you know when your order is ready through the contact
-          method you choose at checkout.
+          When you order through our site you are reserving items for pickup at our Ridgway location. Everything is made fresh in limited daily batches, so flavors come and go.
         </p>
         <p>
-          Items are made in limited daily quantities. If something sells out before your order is
-          confirmed we will contact you to adjust or refund that item.
+          Grab and Go pickup is simple. When your order is ready we send your locker number and a code to open it through the contact method you picked at checkout. Walk in, open the locker, grab your order. You can also come to the counter and say hi.
+        </p>
+        <p>
+          If something sells out before we confirm your order we will reach out to adjust or refund that item.
         </p>
       </Section>
 
       <Section heading="Payment">
         <p>
-          Payment is collected at checkout through our payment processor. Prices shown include tax.
-          We do not store your full card details. Payment information is handled securely by our
-          processor.
+          Payments are processed through Stripe. The checkout you see is our own design, but all card data is handled securely by Stripe. We never see or store your full card details.
+        </p>
+        <p>
+          Applicable Colorado and Ridgway sales tax is added at checkout and shown before you pay.
         </p>
       </Section>
 
-      <Section heading="Pickup and freshness">
+      <Section heading="Proof of payment">
         <p>
-          Our products are best enjoyed the day they are made. Please pick up your order during our
-          open hours on the day you order. We are not able to hold fresh items indefinitely.
+          Your receipt is the email we send the moment your payment goes through. It lists your items, your total and your order number. Keep it handy if you ever need to show proof of purchase.
         </p>
       </Section>
 
       <Section heading="Refunds">
         <p>
-          If we cannot fulfill part of your order, or something is wrong with what you received,
-          reach out and we will make it right with a refund or replacement. Because our products are
-          fresh food, we handle refunds case by case rather than through a blanket policy.
+          We want every order to be right. If something goes wrong, same day refunds are welcome. Reach out the day of your order and we will make it good, whether that is a refund or a remake.
+        </p>
+      </Section>
+
+      <Section heading="Burroship Rewards">
+        <p>
+          Rewards are coming through Burroship, our parent company. One membership will work across the family of brands Burroship operates. The program is not live yet. You can peek at what is coming at burroship.com/rewards.
         </p>
       </Section>
 
       <Section heading="Changes">
         <p>
-          We may update these terms as madebutter. grows. The current version always lives on this
-          page with its last updated date.
-        </p>
-      </Section>
-
-      <Section heading="Contact">
-        <p>
-          Questions about these terms? Reach us through the contact options on our site. We are based
-          in Ridgway, Colorado.
+          We may update these terms as the bakery grows. The latest version always lives on this page.
         </p>
       </Section>
     </LegalLayout>
