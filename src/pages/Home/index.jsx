@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useMenu } from '../../data/useMenu';
 import TopNav from '../../components/Nav/TopNav';
-import Footer from '../../components/Footer/Footer';
 import Hero from './components/Hero';
 import AboutSection from './components/AboutSection';
 import FamilyNav from './components/FamilyNav';
@@ -45,8 +44,6 @@ export default function Home() {
       {categories.map((cat) => (
         <MenuBand key={cat.id} category={cat} onOpen={setDetailItem} />
       ))}
-
-      <Footer />
 
       <CartButton onClick={() => setCartOpen(true)} />
       <CartSheet open={cartOpen} onClose={() => setCartOpen(false)} />

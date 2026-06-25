@@ -29,10 +29,10 @@ export default function AboutSection() {
         </div>
 
         <div className="flex flex-col items-center text-center">
-          <h2 className="text-3xl font-semibold sm:text-4xl" style={{ letterSpacing: 'var(--tracking-heading)', lineHeight: 1.1 }}>
+          <h2 className="text-4xl font-bold sm:text-5xl" style={{ letterSpacing: 'var(--tracking-heading)', lineHeight: 1.1 }}>
             {about.heading}
           </h2>
-          <p className="mx-auto mt-5 max-w-md text-base leading-relaxed" style={{ color: 'var(--mb-text-secondary)' }}>
+          <p className="mx-auto mt-5 max-w-md text-lg font-semibold leading-relaxed" style={{ color: 'var(--mb-text-secondary)' }}>
             {about.body}
           </p>
         </div>

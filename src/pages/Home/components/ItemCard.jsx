@@ -79,9 +79,9 @@ export default function ItemCard({ item, onOpen }) {
       </button>
 
       <div className="mt-2 px-0.5">
-        <p className="text-sm font-medium leading-tight">{item.name}</p>
+        <p className="text-base font-bold leading-tight">{item.name}</p>
         {item.price != null && item.price > 0 && (
-          <p className="mt-0.5 text-sm" style={{ color: 'var(--mb-text-secondary)' }}>{formatPrice(item.price)}</p>
+          <p className="mt-0.5 text-sm font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>{formatPrice(item.price)}</p>
         )}
       </div>
     </div>

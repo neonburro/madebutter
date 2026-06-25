@@ -1,7 +1,7 @@
 // netlify/functions/notify-order.js
 // Sends order notifications via SMS (Twilio) or email (Resend), per the customer's
 // chosen channel. Two kinds: 'received' (right after payment) and 'ready' (locker
-// assigned). Also sends an admin alert to ADMIN_EMAIL on 'received'.
+// assigned or hand delivered). Also sends an admin alert to ADMIN_EMAIL on 'received'.
 // Voice: warm, quirky, positive, clean. No emoji, no em dashes, no oxford commas, no colons.
 import { adminClient, json } from './_shared.js';
 
@@ -55,7 +55,6 @@ function money(cents) {
   return `$${((cents || 0) / 100).toFixed(2)}`;
 }
 
-// Timestamp in Mountain Time (Denver), e.g. "Jun 24, 2026, 2:34 AM MST"
 function mtTimestamp(iso) {
   const d = iso ? new Date(iso) : new Date();
   return d.toLocaleString('en-US', {
@@ -110,24 +109,36 @@ export async function handler(event) {
 
     const ready = kind === 'ready';
     const locker = order.locker_number;
+    const lockerCode = order.locker_code;
+    const handDelivered = ready && !locker;
     const name = order.contact_name || 'there';
     const code = order.receipt_no || order.short_code;
 
     const smsBody = ready
-      ? `madebutter. Hi ${name}, your order is ready and warm. Locker ${locker} is all yours. Come grab it.`
-      : `madebutter. Thanks ${name}, we got your order and we're on it. We'll text your locker number the moment it's ready, or come on in.`;
+      ? (handDelivered
+          ? `madebutter. Hi ${name}, your order is ready and warm. Come on in and grab it.`
+          : `madebutter. Hi ${name}, your order is ready and warm. Locker ${locker} is yours and the code is ${lockerCode}. Come on in and grab it.`)
+      : `madebutter. Thanks ${name}, we got your order and we're on it. We'll text you the moment it's ready, or come on in.`;
 
     const itemList = (items || []).map((i) => `${i.qty} x ${i.item_name}`).join(', ');
 
     const customerSubject = ready
-      ? `Your order is ready, ${name} (locker ${locker})`
+      ? (handDelivered ? `Your order is ready, ${name}` : `Your order is ready, ${name} (locker ${locker})`)
       : `Order received, ${name}`;
+
+    const lockerBlock = handDelivered
+      ? `<p style="font-size:15px;line-height:1.6;color:#3f3b36;margin:0 0 16px;">Hi ${name}, your order is ready. Come on in and grab it, or say hi while you are here.</p>`
+      : `<p style="font-size:15px;line-height:1.6;color:#3f3b36;margin:0 0 16px;">Hi ${name}, your order is ready. Here is everything you need to grab it.</p>
+         <div style="background:#F5F2EB;border-radius:14px;padding:18px;text-align:center;margin:0 0 16px;">
+           <p style="margin:0 0 4px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#9b958c;">Locker</p>
+           <p style="margin:0 0 12px;font-size:32px;font-weight:700;color:#161412;">${locker}</p>
+           <p style="margin:0 0 4px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#9b958c;">Code</p>
+           <p style="margin:0;font-size:32px;font-weight:700;letter-spacing:0.15em;color:#161412;">${lockerCode}</p>
+         </div>`;
 
     const customerInner = ready
       ? `<h1 style="font-size:20px;margin:0 0 8px;">Ready and warm.</h1>
-         <p style="font-size:15px;line-height:1.6;color:#3f3b36;margin:0 0 16px;">
-           Hi ${name}, your order is ready. <strong>Locker ${locker}</strong> is all yours. Come grab it, or step inside and say hi.
-         </p>
+         ${lockerBlock}
          ${itemRows(items)}
          <p style="font-size:13px;color:#9b958c;margin-top:8px;">Order ${code}</p>`
       : `<h1 style="font-size:20px;margin:0 0 8px;">We're on it.</h1>

@@ -1,7 +1,8 @@
 // src/pages/OrderConfirmation/index.jsx
+// Order placed confirmation. Big bold readable vibe matching contact and suggestion.
+// Logo links home. No em dashes, oxford commas or colons.
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Wordmark from '../../components/Brand/Wordmark';
 import ButterMark from '../../components/Brand/ButterMark';
 
 export default function OrderConfirmation() {
@@ -11,19 +12,18 @@ export default function OrderConfirmation() {
         initial={{ scale: 0, opacity: 0, rotate: -12 }}
         animate={{ scale: 1, opacity: 1, rotate: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 18 }}
-        className="mb-6"
+        className="mb-2"
       >
-        <ButterMark size={72} />
+        <Link to="/" aria-label="madebutter. home"><ButterMark size={96} /></Link>
       </motion.div>
 
-      <Wordmark className="text-3xl" />
-      <h1 className="mt-6 text-xl font-semibold">Order placed</h1>
-      <p className="mt-3 max-w-xs text-sm" style={{ color: 'var(--mb-text-secondary)' }}>
-        Thanks! Check your email for the details. We will let you know the moment your order is ready.
+      <h1 className="mt-6 text-5xl font-bold" style={{ letterSpacing: 'var(--tracking-heading)' }}>Order placed</h1>
+      <p className="mt-5 max-w-sm text-lg font-semibold leading-relaxed" style={{ color: 'var(--mb-text-secondary)' }}>
+        Thanks. Check your email for the details. We will let you know the moment your order is ready.
       </p>
 
-      <Link to="/" className="mt-8 rounded-full px-6 py-3 text-sm font-semibold" style={{ background: 'var(--mb-dark-base)', color: 'var(--mb-dark-text)' }}>
-        Back to menu
+      <Link to="/" className="mt-8 rounded-full px-7 py-3.5 text-base font-bold" style={{ background: 'var(--mb-dark-base)', color: 'var(--mb-dark-text)' }}>
+        Back to the good stuff
       </Link>
     </main>
   );

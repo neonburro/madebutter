@@ -13,7 +13,7 @@ export default function MenuBand({ category, onOpen }) {
   return (
     <section id={`cat-${category.slug}`} className="w-full scroll-mt-28 py-12">
       <div className="mx-auto w-[98%]">
-        <h2 className="px-1 text-2xl font-semibold sm:text-3xl" style={{ letterSpacing: 'var(--tracking-heading)' }}>
+        <h2 className="px-1 text-3xl font-bold sm:text-4xl" style={{ letterSpacing: 'var(--tracking-heading)' }}>
           {category.name}
         </h2>
 
@@ -23,7 +23,7 @@ export default function MenuBand({ category, onOpen }) {
           return (
             <div key={group.id} className="mt-8">
               {category.groups.length > 1 && (
-                <h3 className="mb-4 px-1 text-xs font-medium uppercase" style={{ letterSpacing: '0.10em', color: 'var(--mb-text-muted)' }}>
+                <h3 className="mb-4 px-1 text-sm font-bold uppercase" style={{ letterSpacing: '0.10em', color: 'var(--mb-text-muted)' }}>
                   {group.name}
                 </h3>
               )}

@@ -14,11 +14,20 @@ import Suggest from './pages/Suggest';
 import Terms from './pages/Legal/Terms';
 import Privacy from './pages/Legal/Privacy';
 import NotFound from './pages/NotFound';
+import Footer from './components/Footer/Footer';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
   return null;
+}
+
+// Footer shows on public pages, not on admin or account/login or checkout flows.
+function GlobalFooter() {
+  const { pathname } = useLocation();
+  const hideOn = ['/admin', '/account', '/checkout', '/order'];
+  if (hideOn.some((p) => pathname.startsWith(p))) return null;
+  return <Footer />;
 }
 
 function App() {
@@ -46,6 +55,7 @@ function App() {
             <Route path="/admin/*" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <GlobalFooter />
         </Router>
       </CartProvider>
       </CustomerAuthProvider>
