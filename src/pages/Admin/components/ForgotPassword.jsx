@@ -1,7 +1,8 @@
 // src/pages/Admin/components/ForgotPassword.jsx
-// Request a reset. Staff enter their username; we resolve to email server-side,
-// then Supabase emails them a recovery link.
+// Request a reset. Staff enter their username; we resolve to email server-side, then
+// Supabase emails a recovery link. Big bold clean style matching the front end.
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 
 export default function ForgotPassword({ onBack }) {
@@ -9,12 +10,12 @@ export default function ForgotPassword({ onBack }) {
   const [username, setUsername] = useState('');
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
-  const [error, setError] = useState(null);
+
+  const field = { border: '1px solid var(--mb-surface-line-strong)', background: 'var(--mb-surface-base)' };
 
   const submit = async () => {
     if (!username.trim()) return;
     setBusy(true);
-    setError(null);
     try {
       const res = await fetch('/.netlify/functions/resolve-staff-username', {
         method: 'POST',
@@ -22,9 +23,7 @@ export default function ForgotPassword({ onBack }) {
         body: JSON.stringify({ username: username.trim() }),
       });
       const data = await res.json();
-      if (res.ok && data.email) {
-        await sendReset(data.email);
-      }
+      if (res.ok && data.email) await sendReset(data.email);
       setSent(true);
     } catch {
       setSent(true);
@@ -36,50 +35,39 @@ export default function ForgotPassword({ onBack }) {
   const onKey = (e) => { if (e.key === 'Enter') submit(); };
 
   return (
-    <main className="flex min-h-screen w-full items-center justify-center px-6" style={{ background: 'var(--mb-surface-paper)' }}>
-      <div className="w-full max-w-sm">
-        <div className="mb-10 flex justify-center">
-          <img src="/madebutter-logo.png" alt="madebutter." className="h-10 w-auto" />
+    <div className="w-full" style={{ background: 'var(--mb-surface-base)' }}>
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6 py-16">
+        <div className="flex flex-col items-center text-center">
+          <Link to="/" aria-label="madebutter. home">
+            <img src="/madebutter-logo.png" alt="madebutter." className="h-12 w-auto" />
+          </Link>
+          <h1 className="mt-7 text-4xl font-bold sm:text-5xl" style={{ letterSpacing: 'var(--tracking-heading)' }}>
+            {sent ? 'Check your email' : 'Reset password'}
+          </h1>
+          <p className="mt-4 max-w-sm text-base font-semibold leading-relaxed" style={{ color: 'var(--mb-text-secondary)' }}>
+            {sent
+              ? 'If that username has an account, we sent a reset link to its email. Check your inbox.'
+              : 'Enter your username and we will email you a reset link.'}
+          </p>
         </div>
 
-        {sent ? (
-          <div className="text-center">
-            <p className="text-sm" style={{ color: 'var(--mb-text-secondary)' }}>
-              If that username has an account, we sent a reset link to its email. Check your inbox.
-            </p>
-            <button onClick={onBack} className="mt-6 text-xs font-medium" style={{ color: 'var(--mb-accent-toast)' }}>
-              Back to login
-            </button>
-          </div>
-        ) : (
-          <>
-            <p className="mb-4 text-center text-sm" style={{ color: 'var(--mb-text-secondary)' }}>
-              Enter your username and we'll email you a reset link.
-            </p>
-            <input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              onKeyDown={onKey}
-              placeholder="username"
-              autoCapitalize="none"
-              className="w-full rounded-xl px-4 py-3.5 text-sm outline-none"
-              style={{ border: '1px solid var(--mb-surface-line-strong)', background: 'var(--mb-surface-base)' }}
-            />
-            {error && <p className="mt-3 text-center text-xs" style={{ color: 'var(--mb-accent-toast)' }}>{error}</p>}
-            <button
-              onClick={submit}
-              disabled={busy}
-              className="mt-5 w-full rounded-full py-3.5 text-sm font-semibold transition-transform active:scale-[0.99] disabled:opacity-60"
-              style={{ background: 'var(--mb-dark-base)', color: 'var(--mb-dark-text)' }}
-            >
+        {!sent && (
+          <div className="mt-10 space-y-4">
+            <input value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={onKey}
+              placeholder="username" autoCapitalize="none"
+              className="w-full rounded-2xl px-4 py-4 text-base font-medium outline-none" style={field} />
+            <button onClick={submit} disabled={busy}
+              className="w-full rounded-full py-4 text-base font-bold transition-transform active:scale-[0.99] disabled:opacity-60"
+              style={{ background: 'var(--mb-dark-base)', color: 'var(--mb-dark-text)' }}>
               {busy ? 'Sending…' : 'Send reset link'}
             </button>
-            <button onClick={onBack} className="mt-4 w-full text-center text-xs" style={{ color: 'var(--mb-text-muted)' }}>
-              Back to login
-            </button>
-          </>
+          </div>
         )}
-      </div>
-    </main>
+
+        <button onClick={onBack} className="mt-6 text-sm font-bold" style={{ color: 'var(--mb-text-muted)' }}>
+          Back to login
+        </button>
+      </main>
+    </div>
   );
 }

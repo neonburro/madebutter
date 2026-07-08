@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import PasswordInput from '../../../components/Form/PasswordInput';
 import ForgotPassword from './ForgotPassword';
 
 export default function AdminLogin() {
@@ -62,9 +63,8 @@ export default function AdminLogin() {
           <input value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={onKey}
             placeholder="username" autoComplete="username" autoCapitalize="none"
             className="w-full rounded-2xl px-4 py-4 text-base font-medium outline-none" style={field} />
-          <input value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={onKey}
-            type="password" placeholder="password" autoComplete="current-password"
-            className="w-full rounded-2xl px-4 py-4 text-base font-medium outline-none" style={field} />
+          <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={onKey}
+            placeholder="password" autoComplete="current-password" />
 
           {error && <p className="text-center text-sm font-semibold" style={{ color: 'var(--mb-accent-toast)' }}>{error}</p>}
 

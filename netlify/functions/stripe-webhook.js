@@ -1,7 +1,7 @@
 // netlify/functions/stripe-webhook.js
 // Stripe calls this on payment_intent.succeeded. We verify the signature, find
 // the PENDING order (written during create-payment-intent), flip it to 'paid',
-// decrement inventory, upsert the customer if they opted in, and fire notifications.
+// decrement inventory, and upsert the customer if they opted in.
 import Stripe from 'stripe';
 import { adminClient, json } from './_shared.js';
 
@@ -27,6 +27,7 @@ export async function handler(event) {
   const db = adminClient();
 
   try {
+    // Find the pending order by id (preferred) or by the linked intent id.
     let order = null;
     if (m.order_id) {
       const { data } = await db.from('orders').select('*').eq('id', m.order_id).single();
@@ -40,16 +41,24 @@ export async function handler(event) {
       return json(200, { received: true, note: 'no matching order found' });
     }
 
+    // Idempotency: if already paid (Stripe can retry webhooks), do nothing more.
     if (order.status !== 'pending') {
       return json(200, { received: true, already: order.status });
     }
 
+    // Flip pending -> paid. Store the Stripe-confirmed captured amount so the order
+    // reconciles with payment tracking (this is what Stripe actually took).
     const { error: updErr } = await db
       .from('orders')
-      .update({ status: 'paid', stripe_payment_intent_id: pi.id })
+      .update({
+        status: 'paid',
+        stripe_payment_intent_id: pi.id,
+        stripe_amount_cents: pi.amount_received ?? pi.amount ?? null,
+      })
       .eq('id', order.id);
     if (updErr) throw updErr;
 
+    // Decrement inventory for tracked items (atomic, never below zero).
     const { data: orderItems } = await db
       .from('order_items')
       .select('item_id, qty')
@@ -60,6 +69,7 @@ export async function handler(event) {
       }
     }
 
+    // Upsert customer only if they opted in to saving their info.
     if (m.save_info === 'true' && (order.contact_phone || order.contact_email)) {
       await db.from('customers').upsert(
         {

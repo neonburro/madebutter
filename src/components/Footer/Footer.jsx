@@ -1,7 +1,9 @@
 // src/components/Footer/Footer.jsx
 // Clean white footer, black text, no gradient. Wide, same width across all three
-// viewports (w-[92%] max-w-6xl). Working email signup. Chef-hat back of house.
-// Experimental-kitchen voice. No em dashes, oxford commas or colons.
+// viewports (w-[98%]). Working email signup. Chef-hat back of house. Address shows
+// coming-soon until the storefront opens. Experimental-kitchen voice.
+// No em dashes, oxford commas or colons.
+// Last updated 2026-06-27.
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChefHat } from 'lucide-react';
@@ -41,7 +43,9 @@ export default function Footer() {
             <p className="mt-5 max-w-md text-base leading-relaxed" style={{ color: 'var(--mb-text-secondary)' }}>
               part bakery, part product lab. donuts, kolaches, stuffed rolls and coffee are what we are into currently. staples always on the counter, experiments always in the works. made fresh, packed clean, travel ready.
             </p>
-            <p className="mt-5 text-sm font-medium">100 campbell lane, ridgway, colorado</p>
+            <p className="mt-5 text-sm font-medium" style={{ color: 'var(--mb-text-muted)' }}>
+              clinton street, ridgway, colorado <span style={{ fontStyle: 'italic' }}>(coming soon)</span>
+            </p>
             <a href="tel:+19706967575" className="mt-1 block text-sm font-semibold">(970) 696-7575</a>
           </div>
 

@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import ButterMark from '../../components/Brand/ButterMark';
+import PasswordInput from '../../components/Form/PasswordInput';
 
 export default function CustomerLogin() {
   const { signIn, signUp, sendReset } = useCustomerAuth();
@@ -65,9 +66,8 @@ export default function CustomerLogin() {
           <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your email" inputMode="email" autoComplete="email"
             className="w-full rounded-2xl px-4 py-4 text-base font-medium outline-none" style={field} />
           {mode !== 'reset' && (
-            <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="password" type="password"
-              autoComplete={mode === 'in' ? 'current-password' : 'new-password'}
-              className="w-full rounded-2xl px-4 py-4 text-base font-medium outline-none" style={field} />
+            <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} placeholder="password"
+              autoComplete={mode === 'in' ? 'current-password' : 'new-password'} />
           )}
 
           {error && <p className="text-center text-sm font-semibold" style={{ color: 'var(--mb-accent-toast)' }}>{error}</p>}
