@@ -5,7 +5,7 @@
 import Stripe from 'stripe';
 import { adminClient, json, shortCode } from './_shared.js';
 
-const TAX_RATE = 0; // prices are tax-included per pricing sheet
+const TAX_RATE = 0.0905; // Ridgway CO sales tax. Keep in sync with src/lib/tax.js and pos-order.js
 
 export async function handler(event) {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
