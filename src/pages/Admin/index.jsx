@@ -16,6 +16,7 @@ import OrdersBoard from './orders/OrdersBoard';
 import AccountSettings from './components/AccountSettings';
 import Customers from './loyalty/Customers';
 import Rewards from './loyalty/Rewards';
+import POSRegister from './pos/POSRegister';
 
 function Gate({ children }) {
   const { isStaff, loading, recovering } = useAuth();
@@ -41,8 +42,8 @@ export default function Admin() {
         <Route path="orders" element={<OrdersBoard />} />
         <Route path="orders/" element={<OrdersBoard />} />
 
-        <Route path="pos" element={<ComingSoon title="POS" note="Our own register. Tap items, charge the right Ridgway tax, take card or cash. Building this next." />} />
-        <Route path="pos/" element={<ComingSoon title="POS" note="Our own register. Tap items, charge the right Ridgway tax, take card or cash. Building this next." />} />
+        <Route path="pos" element={<POSRegister />} />
+        <Route path="pos/" element={<POSRegister />} />
 
         <Route path="loyalty/customers" element={<Customers />} />
         <Route path="loyalty/customers/" element={<Customers />} />
