@@ -15,6 +15,7 @@ import AdminMenu from './menu/AdminMenu';
 import OrdersBoard from './orders/OrdersBoard';
 import AccountSettings from './components/AccountSettings';
 import Customers from './loyalty/Customers';
+import Rewards from './loyalty/Rewards';
 
 function Gate({ children }) {
   const { isStaff, loading, recovering } = useAuth();
@@ -45,8 +46,8 @@ export default function Admin() {
 
         <Route path="loyalty/customers" element={<Customers />} />
         <Route path="loyalty/customers/" element={<Customers />} />
-        <Route path="loyalty/rewards" element={<ComingSoon title="Rewards" note="Donut points and status. Ten donuts per dollar, wired into every sale." />} />
-        <Route path="loyalty/rewards/" element={<ComingSoon title="Rewards" note="Donut points and status. Ten donuts per dollar, wired into every sale." />} />
+        <Route path="loyalty/rewards" element={<Rewards />} />
+        <Route path="loyalty/rewards/" element={<Rewards />} />
         <Route path="loyalty/signups" element={<ComingSoon title="Signups" note="The email and sms list, ready to export for marketing." />} />
         <Route path="loyalty/signups/" element={<ComingSoon title="Signups" note="The email and sms list, ready to export for marketing." />} />
 
