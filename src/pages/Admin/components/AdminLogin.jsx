@@ -1,7 +1,8 @@
 // src/pages/Admin/components/AdminLogin.jsx
-// Back of house gateway. Same clean big-bold form vibe as the customer login, but a
-// different door: no self-signup. Username + password, forgot password, and a request
-// access line (email the team). Logo links home. No em dashes, oxford commas, colons.
+// Back of house gateway. Clean big-bold form, different door than the customer login:
+// no self-signup. Sign in with username OR email + password. Forgot password and a
+// request-access line. Logo links home. No em dashes, oxford commas or colons.
+// Last updated 2026-06-27.
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
@@ -10,7 +11,7 @@ import ForgotPassword from './ForgotPassword';
 
 export default function AdminLogin() {
   const { signIn } = useAuth();
-  const [username, setUsername] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -19,24 +20,24 @@ export default function AdminLogin() {
   if (forgot) return <ForgotPassword onBack={() => setForgot(false)} />;
 
   const submit = async () => {
-    if (!username || !password) return;
+    if (!identifier || !password) return;
     setBusy(true);
     setError(null);
     try {
       const res = await fetch('/.netlify/functions/resolve-staff-username', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username.trim() }),
+        body: JSON.stringify({ identifier: identifier.trim() }),
       });
       const data = await res.json();
       if (!res.ok || !data.email) {
-        setError('Wrong username or password.');
+        setError('Wrong login or password.');
         setBusy(false);
         return;
       }
       const err = await signIn(data.email, password);
       if (err) {
-        setError('Wrong username or password.');
+        setError('Wrong login or password.');
         setBusy(false);
       }
     } catch {
@@ -60,8 +61,8 @@ export default function AdminLogin() {
         </div>
 
         <div className="mt-10 space-y-4">
-          <input value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={onKey}
-            placeholder="username" autoComplete="username" autoCapitalize="none"
+          <input value={identifier} onChange={(e) => setIdentifier(e.target.value)} onKeyDown={onKey}
+            placeholder="username or email" autoComplete="username" autoCapitalize="none"
             className="w-full rounded-2xl px-4 py-4 text-base font-medium outline-none" style={field} />
           <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={onKey}
             placeholder="password" autoComplete="current-password" />
