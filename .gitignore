@@ -6,3 +6,12 @@
 node_modules
 dist
 .netlify
+
+.DS_Store
+**/.DS_Store
+madebutter. menu/
+Dust Products/
+Travel & Mixes/
+waters/
+kiddos lunch box/
+*.pdf
