@@ -14,6 +14,7 @@ import ResetPassword from './components/ResetPassword';
 import AdminMenu from './menu/AdminMenu';
 import OrdersBoard from './orders/OrdersBoard';
 import AccountSettings from './components/AccountSettings';
+import Customers from './loyalty/Customers';
 
 function Gate({ children }) {
   const { isStaff, loading, recovering } = useAuth();
@@ -42,8 +43,8 @@ export default function Admin() {
         <Route path="pos" element={<ComingSoon title="POS" note="Our own register. Tap items, charge the right Ridgway tax, take card or cash. Building this next." />} />
         <Route path="pos/" element={<ComingSoon title="POS" note="Our own register. Tap items, charge the right Ridgway tax, take card or cash. Building this next." />} />
 
-        <Route path="loyalty/customers" element={<ComingSoon title="Customers" note="Everyone who has ordered, synced with Stripe. Tap a customer for their rewards, order history and email list status." />} />
-        <Route path="loyalty/customers/" element={<ComingSoon title="Customers" note="Everyone who has ordered, synced with Stripe. Tap a customer for their rewards, order history and email list status." />} />
+        <Route path="loyalty/customers" element={<Customers />} />
+        <Route path="loyalty/customers/" element={<Customers />} />
         <Route path="loyalty/rewards" element={<ComingSoon title="Rewards" note="Donut points and status. Ten donuts per dollar, wired into every sale." />} />
         <Route path="loyalty/rewards/" element={<ComingSoon title="Rewards" note="Donut points and status. Ten donuts per dollar, wired into every sale." />} />
         <Route path="loyalty/signups" element={<ComingSoon title="Signups" note="The email and sms list, ready to export for marketing." />} />
