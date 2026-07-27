@@ -1,9 +1,10 @@
 // src/pages/Contact/index.jsx
 // Clean white contact page, centered. Big bold readable vibe matching the suggestion
-// page. No hero. Pills for topic, email mandatory, phone optional but recommended.
-// Subtle coming soon note in the subtitle. Hours block reads coming soon, phone stays.
-// Footer is global. Logo links home, no back button.
+// page. No hero. Pills for topic, email required, phone optional but recommended.
+// Sends email and phone as SEPARATE fields so the function can set a clean reply_to.
+// Subtle coming soon note. Footer is global. Logo links home, no back button.
 // No em dashes, oxford commas or colons.
+// Last updated 2026-07-27.
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ButterMark from '../../components/Brand/ButterMark';
@@ -17,6 +18,8 @@ const TOPICS = [
   'suggestion box',
 ];
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function Contact() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -27,22 +30,22 @@ export default function Contact() {
   const [error, setError] = useState(null);
   const [sent, setSent] = useState(false);
 
-  const field = {
-    border: '1px solid var(--mb-surface-line-strong)',
-    background: 'var(--mb-surface-base)',
-  };
-  const valid = name.trim() && email.trim() && message.trim();
+  const field = { border: '1px solid var(--mb-surface-line-strong)', background: 'var(--mb-surface-base)' };
+  const emailValid = EMAIL_RE.test(email.trim());
+  const valid = name.trim() && emailValid && message.trim();
   const isSuggestion = topic === 'suggestion box';
 
   const submit = async () => {
-    if (!valid) { setError('Add your name, your email and a message.'); return; }
+    if (!name.trim()) { setError('Add your name so we know who we are talking to.'); return; }
+    if (!emailValid) { setError('Add a valid email so we can reach you.'); return; }
+    if (!message.trim()) { setError('Tell us what is on your mind.'); return; }
     setBusy(true);
     setError(null);
     try {
       const res = await fetch('/.netlify/functions/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, contact: email + (phone ? ` / ${phone}` : ''), topic, message }),
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), phone: phone.trim(), topic, message: message.trim() }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Could not send.');
@@ -62,7 +65,7 @@ export default function Contact() {
             <Link to="/" aria-label="madebutter. home"><ButterMark size={92} /></Link>
             <h1 className="mt-8 text-4xl font-bold tracking-tight sm:text-5xl">Got it. Thanks {name.split(' ')[0]}.</h1>
             <p className="mt-5 max-w-md text-lg font-semibold leading-relaxed" style={{ color: 'var(--mb-text-secondary)' }}>
-              We will get back to you soon. If it is urgent, call or text us at (970) 696-7575.
+              We sent a note to your email and we will get back to you soon. If it is urgent, call or text us at (970) 696-7575.
             </p>
             <Link to="/" className="mt-8 rounded-full px-7 py-3.5 text-base font-bold transition-transform active:scale-[0.99]" style={{ background: 'var(--mb-dark-base)', color: 'var(--mb-dark-text)' }}>
               Back to the good stuff
@@ -85,12 +88,20 @@ export default function Contact() {
             <div className="mt-12 space-y-4">
               <input value={name} onChange={(e) => setName(e.target.value)} placeholder="your name"
                 className="w-full rounded-2xl px-4 py-4 text-base font-medium outline-none transition-colors focus:border-[var(--mb-text-primary)]" style={field} />
-              <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your email" inputMode="email"
-                className="w-full rounded-2xl px-4 py-4 text-base font-medium outline-none transition-colors focus:border-[var(--mb-text-primary)]" style={field} />
+
+              <div>
+                <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your email" inputMode="email" autoCapitalize="none"
+                  className="w-full rounded-2xl px-4 py-4 text-base font-medium outline-none transition-colors focus:border-[var(--mb-text-primary)]"
+                  style={{ ...field, borderColor: email && !emailValid ? 'var(--mb-accent-toast)' : 'var(--mb-surface-line-strong)' }} />
+                {email && !emailValid && (
+                  <p className="mt-1.5 px-1 text-sm font-semibold" style={{ color: 'var(--mb-accent-toast)' }}>That email does not look right yet.</p>
+                )}
+              </div>
+
               <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="phone (optional but recommended)" inputMode="tel"
                 className="w-full rounded-2xl px-4 py-4 text-base font-medium outline-none transition-colors focus:border-[var(--mb-text-primary)]" style={field} />
               <p className="px-1 text-sm font-medium leading-relaxed" style={{ color: 'var(--mb-text-muted)' }}>
-                email so we can reach you. phone is optional and you can unsubscribe anytime if it is too much.
+                one email so we can reach you. phone is optional and you can unsubscribe anytime if it is too much.
               </p>
 
               <div className="pt-2">
@@ -99,16 +110,13 @@ export default function Contact() {
                   {TOPICS.map((t) => {
                     const active = topic === t;
                     return (
-                      <button
-                        key={t}
-                        onClick={() => setTopic(t)}
+                      <button key={t} onClick={() => setTopic(t)}
                         className="rounded-full px-4 py-2.5 text-sm font-semibold transition-all active:scale-[0.98]"
                         style={{
                           border: `1px solid ${active ? 'var(--mb-text-primary)' : 'var(--mb-surface-line-strong)'}`,
                           background: active ? 'var(--mb-text-primary)' : 'var(--mb-surface-base)',
                           color: active ? 'var(--mb-text-inverse)' : 'var(--mb-text-secondary)',
-                        }}
-                      >
+                        }}>
                         {t}
                       </button>
                     );
@@ -129,8 +137,8 @@ export default function Contact() {
 
               {error && <p className="text-center text-sm font-semibold" style={{ color: 'var(--mb-accent-toast)' }}>{error}</p>}
 
-              <button onClick={submit} disabled={busy}
-                className="w-full rounded-full py-4 text-base font-bold transition-transform active:scale-[0.99] disabled:opacity-60"
+              <button onClick={submit} disabled={busy || !valid}
+                className="w-full rounded-full py-4 text-base font-bold transition-transform active:scale-[0.99] disabled:opacity-50"
                 style={{ background: 'var(--mb-dark-base)', color: 'var(--mb-dark-text)' }}>
                 {busy ? 'Sending…' : 'Send it'}
               </button>
