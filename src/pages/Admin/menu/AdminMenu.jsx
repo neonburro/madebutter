@@ -1,7 +1,28 @@
 // src/pages/Admin/menu/AdminMenu.jsx
-// Menu management. Categories -> groups -> items. Each card has a drag handle (only
-// the handle drags, so taps elsewhere are reliable), a quick available-today toggle
-// that writes straight to the row, and tap-the-photo-or-name to edit. Front-end vibe.
+//
+// Menu management, in two views over the same loaded tree.
+//
+//   today     the six am job. compact rows, search, per style all on and all
+//             off. see TodayBoard.jsx for why this exists and why it is the
+//             default rather than the grid.
+//   arrange   the maintenance job. photo cards you can drag to reorder and tap
+//             to edit, plus add item.
+//
+// The split is deliberate. Those are two different tasks on two different
+// clocks, one every morning and one every few weeks, and one screen trying to
+// be both is what made setting a day slow. The tree is fetched ONCE here and
+// handed to whichever view is showing, so switching costs nothing and both
+// views agree about what is on.
+//
+// ── THE ROW LEVEL SECURITY TRAP, WRITTEN DOWN ONCE ──────────────────────────
+// A write refused by RLS comes back with NO ERROR and an empty data array. So
+// every optimistic write in here asks for the row back with select and treats
+// zero rows as a failure. Drop the select and a staff account without write
+// access gets a UI that lies to it. TodayBoard.jsx does the same thing for the
+// same reason.
+//
+// No em dashes, oxford commas or colons.
+
 import { useEffect, useState, useCallback } from 'react';
 import { Plus, Boxes, GripVertical } from 'lucide-react';
 import {
@@ -12,9 +33,11 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { supabase, menuImageUrl } from '../../../lib/supabase';
+import { formatPrice } from '../../../lib/format';
 import { persistOrder } from './menuActions';
 import ItemEditModal from './ItemEditModal';
 import BulkInventoryModal from './BulkInventoryModal';
+import TodayBoard from './TodayBoard';
 
 function Toggle({ on, onClick, busy }) {
   return (
@@ -22,10 +45,18 @@ function Toggle({ on, onClick, busy }) {
       onClick={(e) => { e.stopPropagation(); onClick(); }}
       disabled={busy}
       className="relative h-7 w-12 flex-shrink-0 rounded-full transition-colors disabled:opacity-50"
-      style={{ background: on ? '#7AA85A' : 'var(--mb-surface-line-strong)' }}
-      aria-label={on ? 'Available today' : 'Not today'}
+      style={{ background: on ? 'var(--mb-accent-butter)' : 'var(--mb-surface-line-strong)' }}
+      aria-label={on ? 'Out today' : 'Not today'}
+      aria-pressed={on}
     >
-      <span className="absolute top-0.5 h-6 w-6 rounded-full bg-white shadow-sm transition-transform" style={{ transform: on ? 'translateX(22px)' : 'translateX(2px)' }} />
+      <span
+        className="absolute top-0.5 h-6 w-6 rounded-full transition-transform"
+        style={{
+          background: 'var(--mb-surface-raised)',
+          boxShadow: 'var(--mb-shadow-card)',
+          transform: on ? 'translateX(22px)' : 'translateX(2px)',
+        }}
+      />
     </button>
   );
 }
@@ -34,22 +65,27 @@ function SortableItem({ item, onEdit, onToggle, busyId }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
   const dimmed = !item.is_available_today;
   const img = menuImageUrl(item.image_path);
+  const noPrice = !item.price || item.price <= 0;
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.4 : 1,
-    background: 'var(--mb-surface-base)',
-    border: '1px solid var(--mb-surface-line)',
+    background: 'var(--mb-surface-raised)',
+    boxShadow: 'var(--mb-shadow-card)',
   };
   return (
     <div ref={setNodeRef} style={style} className="flex flex-col overflow-hidden rounded-2xl text-left">
-      <button onClick={() => onEdit(item)} className="relative aspect-square w-full" style={{ background: 'var(--mb-surface-paper)' }}>
-        {img && <img src={img} alt={item.name} className="h-full w-full object-contain" style={{ filter: dimmed ? 'grayscale(0.55)' : 'none', opacity: dimmed ? 0.6 : 1 }} draggable={false} />}
+      <button onClick={() => onEdit(item)} className="relative aspect-square w-full" style={{ background: img ? 'var(--mb-surface-raised)' : 'var(--mb-surface-sunk)' }}>
+        {img
+          ? <img src={img} alt={item.name} className="h-full w-full object-contain" style={{ filter: dimmed ? 'grayscale(0.55)' : 'none', opacity: dimmed ? 0.6 : 1 }} draggable={false} />
+          : <span className="flex h-full w-full items-center justify-center">
+              <img src="/madebutter-mark.png" alt="" width="40" height="40" className="h-10 w-10" style={{ opacity: 0.16 }} />
+            </span>}
         <span
           {...attributes} {...listeners}
           onClick={(e) => e.stopPropagation()}
           className="absolute left-1.5 top-1.5 flex h-8 w-8 cursor-grab items-center justify-center rounded-full active:cursor-grabbing"
-          style={{ background: 'rgba(255,255,255,0.9)', touchAction: 'none' }}
+          style={{ background: 'var(--mb-surface-raised)', boxShadow: 'var(--mb-shadow-card)', touchAction: 'none' }}
           aria-label="Drag to reorder"
         >
           <GripVertical size={16} style={{ color: 'var(--mb-text-muted)' }} />
@@ -59,12 +95,12 @@ function SortableItem({ item, onEdit, onToggle, busyId }) {
       <div className="p-3">
         <button onClick={() => onEdit(item)} className="block w-full text-left">
           <p className="text-sm font-bold leading-tight">{item.name}</p>
-          <p className="mt-1 text-xs font-semibold" style={{ color: 'var(--mb-text-muted)' }}>
-            ${(item.price / 100).toFixed(2)}{item.track_stock ? ` · ${item.stock_qty ?? 0} left` : ''}
+          <p className="mb-nums mt-1 text-xs font-semibold" style={{ color: noPrice ? 'var(--mb-accent-toast)' : 'var(--mb-text-secondary)' }}>
+            {noPrice ? 'no price set' : formatPrice(item.price)}{item.track_stock ? ` · ${item.stock_qty ?? 0} left` : ''}
           </p>
         </button>
         <div className="mt-3 flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase" style={{ letterSpacing: '0.06em', color: dimmed ? 'var(--mb-text-muted)' : '#5E7A45' }}>
+          <span className="text-[11px] font-bold uppercase" style={{ letterSpacing: '0.06em', color: dimmed ? 'var(--mb-text-muted)' : 'var(--mb-text-primary)' }}>
             {dimmed ? 'not today' : 'today'}
           </span>
           <Toggle on={!dimmed} busy={busyId === item.id} onClick={() => onToggle(item)} />
@@ -99,8 +135,8 @@ function GroupGrid({ group, onEdit, onReorder, onAdd, onToggle, busyId }) {
           ))}
           <button
             onClick={() => onAdd(group.id)}
-            className="flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl text-sm font-bold"
-            style={{ border: '2px dashed var(--mb-surface-line-strong)', color: 'var(--mb-text-muted)' }}
+            className="flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl text-sm font-bold lowercase"
+            style={{ border: '2px dashed var(--mb-surface-line-strong)', color: 'var(--mb-text-secondary)' }}
           >
             <Plus size={24} /> add item
           </button>
@@ -113,6 +149,7 @@ function GroupGrid({ group, onEdit, onReorder, onAdd, onToggle, busyId }) {
 export default function AdminMenu() {
   const [cats, setCats] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState('today');
   const [editing, setEditing] = useState(null);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [busyId, setBusyId] = useState(null);
@@ -163,7 +200,7 @@ export default function AdminMenu() {
           items: g.items.map((i) => i.id === item.id ? { ...i, is_available_today: !next } : i),
         })),
       })));
-      setToggleError(error?.message || 'That did not save. Your account may not have write access. Tell the dev.');
+      setToggleError(error?.message || 'that did not save. your account may not have write access.');
     }
   };
 
@@ -179,41 +216,74 @@ export default function AdminMenu() {
     }
   };
 
-  if (loading) return <p className="p-8 text-base font-semibold" style={{ color: 'var(--mb-text-muted)' }}>loading menu…</p>;
+  if (loading) {
+    return <p className="p-8 text-base font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>loading menu…</p>;
+  }
+
+  const tab = (key, label) => (
+    <button
+      key={key}
+      onClick={() => setView(key)}
+      className="rounded-full px-4 py-2 text-sm font-bold lowercase"
+      style={{
+        background: view === key ? 'var(--mb-accent-butter)' : 'var(--mb-surface-raised)',
+        color: 'var(--mb-text-primary)',
+        boxShadow: 'var(--mb-shadow-card)',
+      }}
+      aria-pressed={view === key}
+    >
+      {label}
+    </button>
+  );
 
   return (
     <div className="px-4 py-8 sm:px-10">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-4xl font-bold" style={{ letterSpacing: 'var(--tracking-heading)' }}>Menu</h1>
-          <p className="mt-2 text-base font-semibold" style={{ color: 'var(--mb-text-muted)' }}>Flip the toggle to set today. Drag the handle to reorder. Tap a photo to edit.</p>
+          <h1 className="text-4xl font-bold lowercase" style={{ letterSpacing: 'var(--tracking-heading)' }}>menu</h1>
+          <p className="mt-2 text-base font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>
+            {view === 'today'
+              ? 'flip what came out of the oven. search to find one fast.'
+              : 'drag the handle to reorder. tap a photo to edit.'}
+          </p>
         </div>
         <button
           onClick={() => setBulkOpen(true)}
-          className="flex flex-shrink-0 items-center gap-2 rounded-full px-5 py-3 text-sm font-bold"
-          style={{ background: 'var(--mb-accent-butter)', color: 'var(--mb-text-primary)' }}
+          className="flex flex-shrink-0 items-center gap-2 rounded-full px-5 py-3 text-sm font-bold lowercase"
+          style={{ background: 'var(--mb-accent-butter)', color: 'var(--mb-text-primary)', boxShadow: 'var(--mb-shadow-card)' }}
         >
-          <Boxes size={18} /> Bulk inventory
+          <Boxes size={18} /> stock counts
         </button>
       </div>
 
+      <div className="mt-5 flex gap-2">
+        {tab('today', 'today')}
+        {tab('arrange', 'arrange')}
+      </div>
+
       {toggleError && (
-        <p className="mt-4 rounded-xl px-4 py-3 text-sm font-semibold" style={{ background: 'rgba(184,80,60,0.08)', color: 'var(--mb-accent-toast)' }}>{toggleError}</p>
+        <p className="mt-4 rounded-xl px-4 py-3 text-sm font-semibold" style={{ background: 'rgba(176,114,42,0.10)', color: 'var(--mb-accent-toast)' }}>{toggleError}</p>
       )}
 
-      {cats.map((c) => (
-        <section key={c.id} className="mt-10">
-          <h2 className="text-2xl font-bold">{c.name}</h2>
-          {c.groups.map((g) => (
-            <div key={g.id} className="mt-5">
-              {c.groups.length > 1 && (
-                <h3 className="mb-3 text-sm font-bold uppercase" style={{ letterSpacing: '0.1em', color: 'var(--mb-text-muted)' }}>{g.name}</h3>
-              )}
-              <GroupGrid group={g} onEdit={setEditing} onReorder={onReorder} onAdd={(gid) => setEditing({ __new: true, group_id: gid })} onToggle={onToggle} busyId={busyId} />
-            </div>
-          ))}
-        </section>
-      ))}
+      {view === 'today' ? (
+        <div className="mt-6">
+          <TodayBoard cats={cats} setCats={setCats} reload={load} />
+        </div>
+      ) : (
+        cats.map((c) => (
+          <section key={c.id} className="mt-10">
+            <h2 className="text-2xl font-bold">{c.name}</h2>
+            {c.groups.map((g) => (
+              <div key={g.id} className="mt-5">
+                {c.groups.length > 1 && (
+                  <h3 className="mb-3 text-sm font-bold uppercase" style={{ letterSpacing: '0.1em', color: 'var(--mb-text-muted)' }}>{g.name}</h3>
+                )}
+                <GroupGrid group={g} onEdit={setEditing} onReorder={onReorder} onAdd={(gid) => setEditing({ __new: true, group_id: gid })} onToggle={onToggle} busyId={busyId} />
+              </div>
+            ))}
+          </section>
+        ))
+      )}
 
       <ItemEditModal item={editing} onClose={() => setEditing(null)} onSaved={onSaved} />
       <BulkInventoryModal open={bulkOpen} onClose={() => setBulkOpen(false)} onSaved={() => load(true)} />
