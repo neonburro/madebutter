@@ -34,7 +34,10 @@ export const stripeAppearance = {
   rules: {
     // rgba(51,40,28,0.20) is --mb-surface-line-strong
     '.Input': { border: '1px solid rgba(51,40,28,0.20)', boxShadow: 'none', padding: '12px' },
-    '.Input:focus': { border: '1px solid #A8B89A', boxShadow: '0 0 0 3px rgba(168,184,154,0.25)' },
+    // was a sage #A8B89A, the last survivor of a palette that no longer exists.
+    // toast is the theme's focus and warning tone, and it clears contrast on a
+    // white field where butter would not.
+    '.Input:focus': { border: '1px solid #B0722A', boxShadow: '0 0 0 3px rgba(176,114,42,0.22)' },
     '.Label': { color: '#6E6152', fontWeight: '500' },
   },
 };

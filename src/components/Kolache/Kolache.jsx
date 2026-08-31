@@ -14,13 +14,20 @@
 // IS the content, which happens on an empty cart and on a finished order. A
 // third size would mean somebody is using him as a layout element.
 //
+// ── TWO TONES, FOR THE TWO GROUNDS THIS SITE HAS ────────────────────────────
+// The hairline around the avatar is what stops a photograph floating
+// unsupported, and a hairline tuned for cream is invisible on the dark footer
+// while one tuned for dark is a bright ring on cream. So the tone follows the
+// surface he is standing on. Anything darker than the paper passes tone="dark".
+//
 // No em dashes, oxford commas or colons.
 
 import { KOLACHE } from '../../data/kolache';
 
-export default function Kolache({ say, size = 'sm', className = '' }) {
+export default function Kolache({ say, size = 'sm', tone = 'light', className = '' }) {
   if (!say) return null;
   const lg = size === 'lg';
+  const dark = tone === 'dark';
 
   return (
     <div className={`flex items-center gap-3 ${className}`}>
@@ -35,15 +42,15 @@ export default function Kolache({ say, size = 'sm', className = '' }) {
           width: lg ? 52 : 34,
           height: lg ? 52 : 34,
           // The hairline is what stops a photographic avatar floating
-          // unsupported on a flat cream ground. Same treatment the family uses
-          // everywhere else.
-          border: '1px solid var(--mb-surface-line-strong)',
-          background: 'var(--mb-surface-raised)',
+          // unsupported on a flat ground. Same treatment the family uses
+          // everywhere else, tuned to whichever ground he is on.
+          border: `1px solid ${dark ? 'var(--mb-dark-line)' : 'var(--mb-surface-line-strong)'}`,
+          background: dark ? 'var(--mb-dark-raised)' : 'var(--mb-surface-raised)',
         }}
       />
       <p
         className={lg ? 'text-base leading-relaxed' : 'text-sm leading-relaxed'}
-        style={{ color: 'var(--mb-text-secondary)' }}
+        style={{ color: dark ? 'var(--mb-dark-text)' : 'var(--mb-text-secondary)' }}
       >
         {say}
       </p>

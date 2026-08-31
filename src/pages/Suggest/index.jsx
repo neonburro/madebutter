@@ -11,7 +11,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ButterMark from '../../components/Brand/ButterMark';
 
-const SAGE = '#A8B89A';
+// Was a sage #A8B89A left over from an older palette and used nowhere else.
+// The bullets take the brand accent like every other spent mark on the site.
 
 const EXAMPLES = [
   'a flavor you wish existed',
@@ -100,7 +101,7 @@ export default function Suggest() {
             <ul className="mt-4 space-y-3">
               {EXAMPLES.map((e) => (
                 <li key={e} className="flex items-start gap-3 text-lg font-semibold" style={{ color: 'var(--mb-text-primary)' }}>
-                  <span className="text-xl leading-tight" style={{ color: SAGE }}>•</span>
+                  <span className="text-xl leading-tight" style={{ color: 'var(--mb-accent-butter)' }}>•</span>
                   <span>{e}</span>
                 </li>
               ))}

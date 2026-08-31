@@ -48,9 +48,7 @@ export default function Home() {
       <TopNav />
 
       <Hero onOrder={scrollToMenu} onSuggest={scrollToMenu} />
-      {/* the band under the hero is a live board of what is out today, built
-          from the same sections as the grid below so the two cannot disagree */}
-      <AboutSection sections={sections} />
+      <AboutSection />
 
       {/* Where the food starts. TopNav.jsx watches this to decide when to stop
           being transparent, so the bar is glass over the hero and the about
