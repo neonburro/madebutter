@@ -7,6 +7,9 @@ import { adminClient, json, shortCode } from './_shared.js';
 // The rate is shared with the storefront and the register rather than copied
 // here by hand. See the note at the top of src/lib/tax.js.
 import { computeTax } from '../../src/lib/tax.js';
+// the add on rule, extracted so it can be run against the attack cases. see
+// the note at the top of _options.js.
+import { priceLine } from './_options.js';
 
 export async function handler(event) {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
@@ -28,6 +31,39 @@ export async function handler(event) {
 
     if (error) throw error;
 
+    // ── ADD ONS ARE RE-DERIVED HERE, NEVER ACCEPTED ─────────────────────────
+    //
+    // The browser sends option IDS ONLY. Every name and every price below comes
+    // back out of the database, because an option id is just a uuid in a request
+    // body and the two things a caller could otherwise do are obvious:
+    //
+    //   send an option belonging to a different item, which is why every
+    //   submitted option is checked against the groups the item actually offers
+    //
+    //   skip a required group or send twenty of a capped one, which is why
+    //   min_select and max_select are re-checked here rather than trusted from
+    //   the picker that already checked them
+    //
+    // Ids are deduped first. Sending the same option twice would otherwise
+    // count twice against a group's maximum and, the day an option carries a
+    // negative delta, would subtract twice.
+    //
+    // All options and groups are fetched whole rather than filtered. They are a
+    // dozen rows each. If that stops being true, filter by the offered group ids.
+    const itemIds = (items || []).map((i) => i.id);
+    const [linkRes, optRes, groupRes] = await Promise.all([
+      db.from('item_option_groups').select('item_id, option_group_id').in('item_id', itemIds),
+      db.from('options').select('id, slug, name, price_delta, option_group_id, is_active'),
+      db.from('option_groups').select('id, name, min_select, max_select, is_active'),
+    ]);
+    if (linkRes.error) throw linkRes.error;
+    if (optRes.error) throw optRes.error;
+    if (groupRes.error) throw groupRes.error;
+
+    const allLinks = linkRes.data || [];
+    const allOptions = optRes.data || [];
+    const allGroups = groupRes.data || [];
+
     let subtotal = 0;
     const lineItems = [];
     const shortfalls = [];
@@ -47,15 +83,26 @@ export async function handler(event) {
         }
       }
 
-      const lineTotal = dbItem.price * qty;
+      const priced = priceLine({
+        item: dbItem,
+        submittedOptionIds: c.options,
+        links: allLinks,
+        options: allOptions,
+        groups: allGroups,
+      });
+      if (!priced.ok) return json(400, { error: priced.error });
+
+      const { unitPrice, chosen } = priced;
+      const lineTotal = unitPrice * qty;
       subtotal += lineTotal;
       lineItems.push({
         item_id: dbItem.id,
         item_slug: dbItem.slug,
         item_name: dbItem.name,
-        unit_price_cents: dbItem.price,
+        unit_price_cents: unitPrice,
         qty,
         line_total_cents: lineTotal,
+        options: chosen.length ? chosen : null,
       });
     }
 

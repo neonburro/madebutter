@@ -123,7 +123,13 @@ export default function CheckoutFlow() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          cart: lines.map((l) => ({ slug: l.slug || l.id, qty: l.qty })),
+          // ids only. every name and price is re-derived server side, see the
+          // add ons note in netlify/functions/create-payment-intent.js
+          cart: lines.map((l) => ({
+            slug: l.slug || l.id,
+            qty: l.qty,
+            options: (l.options || []).map((o) => o.id),
+          })),
           contact: {
             name,
             phone: channel === 'sms' ? phone : '',

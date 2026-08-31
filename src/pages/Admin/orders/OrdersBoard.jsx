@@ -120,11 +120,26 @@ function OrderCard({ order, lane, onAdvance, onReadyClick, onCancel }) {
         <p className="mt-0.5 text-sm" style={{ color: 'var(--mb-text-secondary)' }}>{order.contact_name}</p>
       )}
 
-      <div className="mt-3 space-y-1">
+      {/* ── THE ADD ONS HAVE TO BE ON THIS CARD ──────────────────────────────
+          This is the ticket somebody makes the drink from. An order for a nitro
+          with oat milk that shows only "Nitro with Milk" gets made with whole
+          milk, and the customer is handed the wrong thing. The options column
+          is the snapshot written by create-payment-intent.js at the time of the
+          order, so it says what was actually bought even if the option has been
+          renamed since. It is bolder than the item name on purpose, it is the
+          part that is easy to miss. */}
+      <div className="mt-3 space-y-1.5">
         {order.items.map((it) => (
-          <div key={it.id} className="flex justify-between text-sm">
-            <span>{it.item_name}</span>
-            <span style={{ color: 'var(--mb-text-muted)' }}>×{it.qty}</span>
+          <div key={it.id} className="flex justify-between gap-3 text-sm">
+            <span className="min-w-0">
+              {it.item_name}
+              {Array.isArray(it.options) && it.options.length > 0 && (
+                <span className="block font-bold" style={{ color: 'var(--mb-accent-toast)' }}>
+                  {it.options.map((o) => o.name).join(', ')}
+                </span>
+              )}
+            </span>
+            <span className="mb-nums flex-shrink-0" style={{ color: 'var(--mb-text-secondary)' }}>×{it.qty}</span>
           </div>
         ))}
       </div>

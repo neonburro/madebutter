@@ -27,7 +27,9 @@ export default function AccountHome() {
     (async () => {
       const { data } = await supabase
         .from('orders')
-        .select('*, order_items(item_name, qty, line_total_cents)')
+        // `options` is the add on snapshot. without it an old order reads as a
+        // plain nitro when it was a nitro with oat milk and vanilla.
+        .select('*, order_items(item_name, qty, line_total_cents, options)')
         .eq('customer_id', customer.id)
         .order('created_at', { ascending: false });
       setOrders(data || []);
@@ -116,7 +118,14 @@ export default function AccountHome() {
               <div className="mt-2 space-y-1">
                 {(o.order_items || []).map((it, i) => (
                   <div key={i} className="flex justify-between text-sm">
-                    <span>{it.item_name}</span>
+                    <span className="min-w-0">
+                      {it.item_name}
+                      {Array.isArray(it.options) && it.options.length > 0 && (
+                        <span className="block text-xs" style={{ color: 'var(--mb-text-muted)' }}>
+                          {it.options.map((o) => o.name).join(', ')}
+                        </span>
+                      )}
+                    </span>
                     <span style={{ color: 'var(--mb-text-muted)' }}>×{it.qty}</span>
                   </div>
                 ))}

@@ -29,6 +29,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { formatPrice } from '../../lib/format';
 import { menuImageUrl } from '../../lib/supabase';
+import { describeOptions } from '../../data/options';
 import Kolache from '../Kolache/Kolache';
 import { SAYS } from '../../data/kolache';
 
@@ -84,7 +85,7 @@ export default function CartSheet({ open, onClose }) {
                       const img = menuImageUrl(l.image_path);
                       return (
                         <motion.div
-                          key={l.id}
+                          key={l.key}
                           layout
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
@@ -101,16 +102,24 @@ export default function CartSheet({ open, onClose }) {
                           </div>
 
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-[15px] font-bold">{l.name}</p>
-                            <p className="mb-nums text-sm font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>
-                              {l.price > 0 ? formatPrice(l.price * l.qty) : ''}
+                            <p className="text-[15px] font-bold leading-tight">{l.name}</p>
+                            {/* what was chosen, names only. the deltas are already
+                                inside the line total and repeating them here turns
+                                a two line box into a wall. */}
+                            {l.options?.length > 0 && (
+                              <p className="mt-0.5 truncate text-xs font-semibold" style={{ color: 'var(--mb-text-muted)' }}>
+                                {describeOptions(l.options)}
+                              </p>
+                            )}
+                            <p className="mb-nums mt-0.5 text-sm font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>
+                              {(l.unit_price ?? l.price) > 0 ? formatPrice((l.unit_price ?? l.price) * l.qty) : ''}
                             </p>
                           </div>
 
                           <div className="flex items-center gap-2">
                             <motion.button
                               whileTap={{ scale: 0.85 }}
-                              onClick={() => decrement(l.id)}
+                              onClick={() => decrement(l.key)}
                               aria-label={`Remove one ${l.name}`}
                               className="flex h-11 w-11 items-center justify-center rounded-full"
                               style={{ border: '1px solid var(--mb-surface-line-strong)' }}

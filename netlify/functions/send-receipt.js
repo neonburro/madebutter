@@ -39,10 +39,17 @@ export async function handler(event) {
 
     const { data: items } = await db.from('order_items').select('*').eq('order_id', order_id);
 
+    // The add ons are part of what was charged for, so a receipt that omits
+    // them cannot be reconciled against the line total beside it. `options` is
+    // the snapshot written at order time by create-payment-intent.js.
+    const addOns = (it) => (Array.isArray(it.options) && it.options.length
+      ? `<div style="font-size:13px;color:#6E6152;padding-top:2px;">${it.options.map((o) => o.name).join(', ')}</div>`
+      : '');
+
     const rows = (items || []).map((it) => `
       <tr>
-        <td style="padding:6px 0;font-size:15px;color:#161412;">${it.qty} × ${it.item_name}</td>
-        <td style="padding:6px 0;font-size:15px;color:#161412;text-align:right;">$${((it.line_total_cents || 0) / 100).toFixed(2)}</td>
+        <td style="padding:6px 0;font-size:15px;color:#161412;">${it.qty} × ${it.item_name}${addOns(it)}</td>
+        <td style="padding:6px 0;font-size:15px;color:#161412;text-align:right;vertical-align:top;">$${((it.line_total_cents || 0) / 100).toFixed(2)}</td>
       </tr>`).join('');
 
     const money = (c) => `$${((c || 0) / 100).toFixed(2)}`;

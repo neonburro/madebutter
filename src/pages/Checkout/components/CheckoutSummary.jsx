@@ -14,6 +14,7 @@
 
 import { useCart } from '../../../context/CartContext';
 import { formatPrice } from '../../../lib/format';
+import { describeOptions } from '../../../data/options';
 import { withTax } from '../../../lib/tax';
 
 export default function CheckoutSummary() {
@@ -27,12 +28,19 @@ export default function CheckoutSummary() {
       </h2>
       <div className="space-y-2">
         {lines.map((l) => (
-          <div key={l.id} className="flex justify-between gap-4 text-sm">
+          <div key={l.key} className="flex justify-between gap-4 text-sm">
             <span className="font-semibold">
               <span className="mb-nums">{l.qty}</span> × {l.name}
+              {/* the add ons are part of what is being charged for, so they are
+                  spelled out here even though the cart sheet keeps them small */}
+              {l.options?.length > 0 && (
+                <span className="block text-xs font-medium" style={{ color: 'var(--mb-text-muted)' }}>
+                  {describeOptions(l.options)}
+                </span>
+              )}
             </span>
             <span className="mb-nums font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>
-              {formatPrice((l.price || 0) * l.qty)}
+              {formatPrice((l.unit_price ?? l.price ?? 0) * l.qty)}
             </span>
           </div>
         ))}

@@ -30,6 +30,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useCart } from '../../../context/CartContext';
 import { formatPrice } from '../../../lib/format';
 import { menuImageUrl } from '../../../lib/supabase';
+import { requiresChoice } from '../../../data/options';
 
 // Below this many we say how many are left. Above it the number is noise.
 const LOW_STOCK_AT = 6;
@@ -45,6 +46,19 @@ export default function ItemCard({ item, onOpen }) {
   const available = item.is_available_today && !soldOut;
   const capped = atCap(item);
   const inBox = qty > 0;
+
+  // ── WHEN THE PLUS CANNOT JUST ADD ─────────────────────────────────────────
+  // An item with a REQUIRED question, a drink that has to have a milk picked,
+  // cannot be quick added, because doing so would silently answer for the
+  // customer. For those the plus opens the sheet instead. Items whose questions
+  // are all optional keep the fast path, and tapping the card is still how you
+  // get to the choices. See src/data/options.js.
+  const mustChoose = requiresChoice(item);
+  const onPlus = () => {
+    if (capped) return;
+    if (mustChoose) onOpen?.(item);
+    else add(item);
+  };
 
   return (
     <div className="group relative flex flex-col">
@@ -114,9 +128,13 @@ export default function ItemCard({ item, onOpen }) {
         {/* sibling of the plate button, never a child of it */}
         {available && (
           <motion.button
-            onClick={() => { if (!capped) add(item); }}
+            onClick={onPlus}
             disabled={capped}
-            aria-label={capped ? `${item.name} limit reached` : `Add ${item.name}`}
+            aria-label={
+              capped ? `${item.name} limit reached`
+                : mustChoose ? `Choose options for ${item.name}`
+                : `Add ${item.name}`
+            }
             whileTap={capped ? {} : { scale: 0.84 }}
             className="absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full"
             style={{

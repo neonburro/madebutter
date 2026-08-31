@@ -61,6 +61,37 @@ const flav = (groupId, name, price, on, stock = null) => {
   };
 };
 
+// ── ADD ON QUESTIONS, MIRRORING PRODUCTION ──────────────────────────────────
+// Same three groups the real drinks carry, and the same shapes, which is what
+// matters for building the picker: one REQUIRED pick one, one optional pick
+// one, and one optional pick several. See src/data/options.js for what
+// min_select and max_select mean.
+const og = (id, name, helper, min, max, options) => ({
+  id, slug: id, name, helper, min_select: min, max_select: max, is_active: true, options,
+});
+const opt = (id, name, delta) => ({ id, slug: id, name, price_delta: delta, is_active: true });
+
+export const SEED_OPTION_GROUPS = {
+  milk: og('g-milk-choice', 'Milk', 'pick one', 1, 1, [
+    opt('o-milk-whole', 'Whole milk', 0),
+    opt('o-milk-oat', 'Oat milk', 75),
+    opt('o-milk-almond', 'Almond milk', 75),
+  ]),
+  flavor: og('g-flavor', 'Add a flavor', 'one, if you want', 0, 1, [
+    opt('o-flav-vanilla', 'Vanilla', 50),
+    opt('o-flav-maple', 'Maple', 50),
+    opt('o-flav-matcha', 'Matcha', 75),
+    opt('o-flav-sesame', 'Black sesame', 75),
+  ]),
+  extras: og('g-extras', 'Extras', 'as many as you like', 0, 3, [
+    opt('o-extra-shot', 'Extra shot', 150),
+    opt('o-extra-foam', 'Cold foam', 100),
+  ]),
+};
+
+// attach questions to an item built by flav()
+const asks = (item, ...groups) => ({ ...item, option_groups: groups });
+
 export const SEED_CATEGORIES = [
   {
     id: 'c-donuts', name: 'Donuts', slug: 'donuts', sort_order: 1, is_active: true,
@@ -137,15 +168,17 @@ export const SEED_CATEGORIES = [
     id: 'c-drinks', name: 'Drinks', slug: 'drinks', sort_order: 4, is_active: true,
     groups: [
       style('g-coldbrew', 'Cold Brew', 'cold-brew', 'c-drinks', 1, [
-        flav('g-coldbrew', 'Nitro Cold Brew', 500, true),
-        flav('g-coldbrew', 'Nitro with Milk', 550, true),
-        flav('g-coldbrew', 'Hot Nitro', 500, false),
+        asks(flav('g-coldbrew', 'Nitro Cold Brew', 500, true), SEED_OPTION_GROUPS.flavor, SEED_OPTION_GROUPS.extras),
+        // the one with a REQUIRED question. its plus opens the picker rather
+        // than quick adding, which is the case ItemCard.jsx has to get right.
+        asks(flav('g-coldbrew', 'Nitro with Milk', 550, true), SEED_OPTION_GROUPS.milk, SEED_OPTION_GROUPS.flavor, SEED_OPTION_GROUPS.extras),
+        asks(flav('g-coldbrew', 'Hot Nitro', 500, false), SEED_OPTION_GROUPS.flavor, SEED_OPTION_GROUPS.extras),
       ]),
       style('g-milks', 'Milks', 'milks', 'c-drinks', 2, [
-        flav('g-milks', 'Chocolate Milk', 375, true),
-        flav('g-milks', 'Vanilla Milk', 375, true),
-        flav('g-milks', 'Matcha Milk', 475, true),
-        flav('g-milks', 'Coffee Milk', 425, true),
+        asks(flav('g-milks', 'Chocolate Milk', 375, true), SEED_OPTION_GROUPS.flavor),
+        asks(flav('g-milks', 'Vanilla Milk', 375, true), SEED_OPTION_GROUPS.flavor),
+        asks(flav('g-milks', 'Matcha Milk', 475, true), SEED_OPTION_GROUPS.flavor),
+        asks(flav('g-milks', 'Coffee Milk', 425, true), SEED_OPTION_GROUPS.flavor),
       ]),
       style('g-bottled', 'Bottled', 'bottled', 'c-drinks', 3, [
         flav('g-bottled', 'Banana Water', 425, true),
