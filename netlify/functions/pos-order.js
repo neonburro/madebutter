@@ -6,12 +6,20 @@
 // captured, links or creates the customer for rewards. Payment is 'cash' or 'card'
 // (card = tapped in the Stripe app, marked paid here). Returns receipt + change due.
 // Last updated 2026-06-27.
-import { adminClient, json, shortCode } from './_shared.js';
+import { adminClient, json, shortCode, requireStaff } from './_shared.js';
 
 const TAX_RATE = 0.0905; // keep in sync with src/lib/tax.js
 
 export async function handler(event) {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
+
+  // STAFF ONLY. This writes an order with status PAID, so an open version of
+  // it let anyone invent revenue and mint loyalty credit against it. The money
+  // maths below was always correct and it was guarding the wrong thing: the
+  // amounts could not be tampered with, but the sale itself could be fabricated.
+  const gate = await requireStaff(event);
+  if (gate.error) return gate.error;
+
   const db = adminClient();
 
   try {

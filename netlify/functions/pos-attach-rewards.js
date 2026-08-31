@@ -3,10 +3,17 @@
 // step shown post-payment). Finds or creates the customer by phone, links them to the
 // order, and stamps the contact name. Best-effort: the sale is already recorded.
 // Last updated 2026-06-27.
-import { adminClient, json } from './_shared.js';
+import { adminClient, json, requireStaff } from './_shared.js';
 
 export async function handler(event) {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
+
+  // STAFF ONLY. It attaches a customer to a paid order, which is how crumbs
+  // get earned, so leaving it open was a way to mint rewards against somebody
+  // else's purchases.
+  const gate = await requireStaff(event);
+  if (gate.error) return gate.error;
+
   const db = adminClient();
 
   try {

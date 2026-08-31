@@ -12,6 +12,7 @@ import { Plus, Minus, X, Trash2, Check, Delete } from 'lucide-react';
 import { useMenu } from '../../../data/useMenu';
 import { menuImageUrl } from '../../../lib/supabase';
 import { withTax } from '../../../lib/tax';
+import { staffFetch } from '../../../lib/staffFetch';
 
 const money = (c) => `$${((c || 0) / 100).toFixed(2)}`;
 
@@ -195,12 +196,9 @@ export default function POSRegister() {
   const submit = async (payment_method, cash_tendered_cents, phone, first_name) => {
     setBusy(true); setError(null);
     try {
-      const res = await fetch('/.netlify/functions/pos-order', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cart: cart.map((l) => ({ item_id: l.item.id, qty: l.qty })),
-          payment_method, cash_tendered_cents, phone, first_name,
-        }),
+      const res = await staffFetch('/.netlify/functions/pos-order', {
+        cart: cart.map((l) => ({ item_id: l.item.id, qty: l.qty })),
+        payment_method, cash_tendered_cents, phone, first_name,
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -224,9 +222,8 @@ export default function POSRegister() {
   const attachRewards = async (phone, name) => {
     setBusy(true);
     try {
-      await fetch('/.netlify/functions/pos-attach-rewards', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: result.order_id, phone, first_name: name }),
+      await staffFetch('/.netlify/functions/pos-attach-rewards', {
+        order_id: result.order_id, phone, first_name: name,
       });
     } catch { /* best effort */ }
     setBusy(false);

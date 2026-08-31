@@ -3,7 +3,7 @@
 // Resend. Self-contained so it does not depend on notify-order internals. Pulls the
 // order + items fresh, shows Mountain Time, honors a refunded state.
 // Last updated 2026-06-27.
-import { adminClient, json } from './_shared.js';
+import { adminClient, json, requireStaff } from './_shared.js';
 
 const LOGO_URL = 'https://madebutter.netlify.app/madebutter-logo.png';
 
@@ -16,6 +16,14 @@ function mt(iso) {
 
 export async function handler(event) {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
+
+  // STAFF ONLY, because `to` lets the caller choose the recipient. Open, this
+  // was a way to send mail from orders@madebutter.com to any address on earth,
+  // which is somebody else's spam problem right up until the domain's sending
+  // reputation becomes yours.
+  const gate = await requireStaff(event);
+  if (gate.error) return gate.error;
+
   const db = adminClient();
 
   try {

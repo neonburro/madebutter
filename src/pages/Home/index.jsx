@@ -10,6 +10,8 @@ import MenuBand from './components/MenuBand';
 import ItemDetailModal from './components/ItemDetailModal';
 import CartButton from '../../components/Cart/CartButton';
 import CartSheet from '../../components/Cart/CartSheet';
+import Kolache from '../../components/Kolache/Kolache';
+import { SAYS } from '../../data/kolache';
 
 export default function Home() {
   const { categories, loading, error } = useMenu();
@@ -31,14 +33,19 @@ export default function Home() {
       <AboutSection />
       <FamilyNav categories={categories} />
 
-      {loading && (
-        <p className="py-16 text-center text-sm" style={{ color: 'var(--mb-text-muted)' }}>Loading the menu…</p>
-      )}
-      {error && (
-        <p className="py-16 text-center text-sm" style={{ color: 'var(--mb-text-muted)' }}>Menu is being prepped. Check back in a moment.</p>
-      )}
-      {!loading && !error && categories.length === 0 && (
-        <p className="py-16 text-center text-sm" style={{ color: 'var(--mb-text-muted)' }}>Menu coming soon.</p>
+      {/* THE COUNTER ANSWERS, NOT THE MACHINE. These three used to read
+          "Loading the menu…", "Menu is being prepped" and "Menu coming soon",
+          which are three different voices and none of them is a person. A shop
+          with somebody behind the counter does not display a status, it tells
+          you what is going on. Same information, one voice, and the empty case
+          stops sounding like an apology. */}
+      {(loading || error || (!loading && !error && categories.length === 0)) && (
+        <div className="mx-auto w-[92%] max-w-2xl py-20 sm:py-28">
+          <Kolache
+            size="lg"
+            say={loading ? SAYS.fetching : SAYS.menuDown}
+          />
+        </div>
       )}
 
       {categories.map((cat) => (

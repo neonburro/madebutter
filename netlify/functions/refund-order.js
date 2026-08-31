@@ -1,13 +1,21 @@
 // netlify/functions/refund-order.js
 // Issues a FULL refund on an order through Stripe, then mirrors the result in our DB.
-// Defensive: requires a paid order with a payment intent, refuses to double-refund,
+// STAFF ONLY. Requires a paid order with a payment intent, refuses to double-refund,
 // records the Stripe refund id and amount. Stripe is the source of truth for money.
 // Last updated 2026-06-27.
 import Stripe from 'stripe';
-import { adminClient, json } from './_shared.js';
+import { adminClient, json, requireStaff } from './_shared.js';
 
 export async function handler(event) {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
+
+  // STAFF ONLY. Without this, anyone holding an order id could issue
+  // themselves a full Stripe refund by POSTing to this URL. It was reachable
+  // by curl from the open internet and the only thing in front of it was the
+  // admin screen, which is not a permission. See requireStaff in _shared.js.
+  const gate = await requireStaff(event);
+  if (gate.error) return gate.error;
+
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   const db = adminClient();
 

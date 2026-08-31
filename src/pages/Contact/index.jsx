@@ -2,11 +2,18 @@
 // Clean white contact page, centered. Big bold readable vibe matching the suggestion
 // page. No hero. Pills for topic, email required, phone optional but recommended.
 // Sends email and phone as SEPARATE fields so the function can set a clean reply_to.
-// Subtle coming soon note. Footer is global. Logo links home, no back button.
+// Footer is global. Logo links home, no back button.
+//
+// The status pill says TEST KITCHEN, not coming soon. It is true today, it
+// stays true after the doors open, and it says something about what this place
+// is instead of asking to be judged later. Coming soon is a promise in nobody's
+// voice and it goes stale the day somebody forgets to delete it.
 // No em dashes, oxford commas or colons.
 // Last updated 2026-07-27.
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import Kolache from '../../components/Kolache/Kolache';
+import { SAYS } from '../../data/kolache';
 import ButterMark from '../../components/Brand/ButterMark';
 
 const TOPICS = [
@@ -77,11 +84,11 @@ export default function Contact() {
               <Link to="/" aria-label="madebutter. home"><ButterMark size={84} /></Link>
               <span className="mt-7 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-bold uppercase" style={{ letterSpacing: '0.14em', border: '1px solid var(--mb-surface-line)', color: 'var(--mb-text-muted)' }}>
                 <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: 'var(--mb-accent-toast)' }} />
-                coming soon
+                test kitchen
               </span>
               <h1 className="mt-5 text-5xl font-bold sm:text-6xl" style={{ letterSpacing: 'var(--tracking-heading)' }}>Say hello</h1>
               <p className="mt-5 max-w-lg text-lg font-semibold leading-relaxed sm:text-xl" style={{ color: 'var(--mb-text-secondary)' }}>
-                We are not quite open yet. Questions, ideas, big orders, or just butter appreciation, send them over and we will read every one.
+                No storefront yet. The kitchen is real and it is busy. Questions, ideas, big orders, or just butter appreciation, send them over and we read every one.
               </p>
             </div>
 
@@ -144,11 +151,19 @@ export default function Contact() {
               </button>
             </div>
 
+            {/* There are no hours because there is no room to have hours in.
+                Printing a label with "coming soon" under it is worse than not
+                printing the label: it draws attention to the missing thing.
+                What is true is that a phone gets answered, so that is what
+                this block is now. */}
             <div className="mt-14 border-t pt-10 text-center" style={{ borderColor: 'var(--mb-surface-line)' }}>
-              <p className="text-sm font-bold uppercase" style={{ letterSpacing: '0.12em', color: 'var(--mb-text-muted)' }}>hours</p>
-              <p className="mt-2 text-2xl font-bold">coming soon</p>
-              <p className="mt-5 text-base font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>call, text, sometimes even video chat</p>
-              <a href="tel:+19706967575" className="mt-1 block text-2xl font-bold">(970) 696-7575</a>
+              <p className="text-sm font-bold uppercase" style={{ letterSpacing: '0.12em', color: 'var(--mb-text-muted)' }}>
+                call or text
+              </p>
+              <a href="tel:+19706967575" className="mt-2 block text-2xl font-bold">(970) 696-7575</a>
+              <div className="mt-8 flex justify-center">
+                <Kolache say={SAYS.notOpenYet} />
+              </div>
             </div>
           </>
         )}

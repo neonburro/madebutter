@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, Search, Mail, MessageSquare, RotateCcw, Send, ChevronRight } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
+import { staffFetch } from '../../../lib/staffFetch';
 
 const money = (c) => `$${((c || 0) / 100).toFixed(2)}`;
 const mt = (iso) => iso ? new Date(iso).toLocaleString('en-US', { timeZone: 'America/Denver', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
@@ -60,10 +61,7 @@ function OrderDrawer({ order, onClose, onRefunded, onReceiptSent }) {
   const doRefund = async () => {
     setBusy('refund'); setMsg(null);
     try {
-      const res = await fetch('/.netlify/functions/refund-order', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: order.id }),
-      });
+      const res = await staffFetch('/.netlify/functions/refund-order', { order_id: order.id });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setMsg({ ok: true, text: `Refunded ${money(data.amount_cents)}.` });
@@ -76,10 +74,7 @@ function OrderDrawer({ order, onClose, onRefunded, onReceiptSent }) {
   const doReceipt = async () => {
     setBusy('receipt'); setMsg(null);
     try {
-      const res = await fetch('/.netlify/functions/send-receipt', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: order.id }),
-      });
+      const res = await staffFetch('/.netlify/functions/send-receipt', { order_id: order.id });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setMsg({ ok: true, text: `Receipt sent to ${data.sent_to}.` });

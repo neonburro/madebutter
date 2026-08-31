@@ -1,12 +1,24 @@
 // src/components/Footer/Footer.jsx
 // Clean white footer, black text, no gradient. Wide, same width across all three
-// viewports (w-[98%]). Working email signup. Chef-hat back of house. Address shows
-// coming-soon until the storefront opens. Experimental-kitchen voice.
+// viewports (w-[98%]). Working email signup. Chef-hat back of house.
+// Experimental-kitchen voice.
+//
+// ── THE ADDRESS LINE NO LONGER SAYS COMING SOON ─────────────────────────────
+// It used to read "clinton street, ridgway, colorado (coming soon)", and coming
+// soon is the weakest thing a brand can print. It asks to be judged later,
+// which reads as an apology for existing now, and it goes stale on its own the
+// day somebody forgets to delete it.
+//
+// What is TRUE is more interesting than what is pending: there is no storefront
+// and the kitchen is real and running. Kolache says that in his own words, and
+// a fact in a character's voice is worth more than a promise in nobody's.
 // No em dashes, oxford commas or colons.
 // Last updated 2026-06-27.
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChefHat } from 'lucide-react';
+import Kolache from '../Kolache/Kolache';
+import { SAYS } from '../../data/kolache';
 
 const SAGE = '#A8B89A';
 
@@ -44,9 +56,20 @@ export default function Footer() {
               part bakery, part product lab. donuts, kolaches, stuffed rolls and coffee are what we are into currently. staples always on the counter, experiments always in the works. made fresh, packed clean, travel ready.
             </p>
             <p className="mt-5 text-sm font-medium" style={{ color: 'var(--mb-text-muted)' }}>
-              clinton street, ridgway, colorado <span style={{ fontStyle: 'italic' }}>(coming soon)</span>
+              ridgway, colorado
             </p>
             <a href="tel:+19706967575" className="mt-1 block text-sm font-semibold">(970) 696-7575</a>
+
+            {/* The counter. He is the only character on the site and this is
+                the one place he appears unprompted, because a counter is
+                somewhere a person stands whether or not you ask them
+                anything. Everywhere else he answers something. */}
+            <div className="mt-8 border-t pt-6" style={{ borderColor: 'var(--mb-surface-line)' }}>
+              <Kolache say={SAYS.counter} />
+              <p className="mt-3 text-sm leading-relaxed" style={{ color: 'var(--mb-text-muted)' }}>
+                {SAYS.notOpenYet}
+              </p>
+            </div>
           </div>
 
           <div className="sm:max-w-sm sm:justify-self-end sm:w-full">
