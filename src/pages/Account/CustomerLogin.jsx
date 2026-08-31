@@ -43,11 +43,12 @@ export default function CustomerLogin() {
     navigate('/account/');
   };
 
-  const heading = mode === 'in' ? 'Welcome back' : mode === 'up' ? 'Start collecting' : 'Reset password';
+  // the currency is CRUMBS, never donuts. see src/data/crumbs.js
+  const heading = mode === 'in' ? 'welcome back' : mode === 'up' ? 'start collecting' : 'reset password';
   const sub =
-    mode === 'in' ? 'Sign in to see your donuts and your orders.'
-    : mode === 'up' ? 'Every order earns you donuts. Make an account to start your stash.'
-    : 'We will email you a link to set a new password.';
+    mode === 'in' ? 'sign in to see your crumbs and your orders.'
+    : mode === 'up' ? 'every dollar is ten crumbs. collect enough and we hand you back a whole donut.'
+    : 'we will email you a link to set a new password.';
 
   return (
     <div className="w-full" style={{ background: 'var(--mb-surface-base)' }}>

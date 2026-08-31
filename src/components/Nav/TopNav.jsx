@@ -166,15 +166,16 @@ export default function TopNav() {
                     style={{ background: 'var(--mb-text-primary)', color: 'var(--mb-text-inverse)' }}
                   >
                     <Donut size={22} strokeWidth={2} color="var(--mb-accent-butter)" />
-                    my donuts<span style={{ color: 'var(--mb-accent-butter)' }}>.</span>
+                    my crumbs<span style={{ color: 'var(--mb-accent-butter)' }}>.</span>
                   </Link>
                 </>
               ) : (
                 <div className="mt-6 rounded-3xl p-6 text-center" style={{ background: 'var(--mb-surface-paper)' }}>
                   <Donut size={40} strokeWidth={2} color="var(--mb-text-primary)" className="mx-auto" />
-                  <p className="mt-3 text-2xl font-bold">start collecting donuts</p>
+                  {/* the currency is CRUMBS, never donuts. see src/data/crumbs.js */}
+                  <p className="mt-3 text-2xl font-bold">start collecting crumbs</p>
                   <p className="mt-2 text-base font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>
-                    every order earns you donuts. sign in or create an account to start your stash.
+                    every dollar is ten crumbs. collect enough of them and we hand you back a whole donut.
                   </p>
                   <Link
                     to="/account/login/"

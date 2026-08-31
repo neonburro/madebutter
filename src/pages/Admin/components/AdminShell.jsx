@@ -24,7 +24,7 @@ const NAV = [
 
 const LOYALTY = [
   { to: '/admin/loyalty/customers/', label: 'Customers', icon: Users, desc: 'everyone who has ordered' },
-  { to: '/admin/loyalty/rewards/', label: 'Rewards', icon: Gift, desc: 'donut points and status' },
+  { to: '/admin/loyalty/rewards/', label: 'Rewards', icon: Gift, desc: 'the crumbs board' },
   { to: '/admin/loyalty/signups/', label: 'Signups', icon: Mail, desc: 'email and sms list to export' },
 ];
 

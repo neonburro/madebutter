@@ -133,13 +133,27 @@ export const SEED_CATEGORIES = [
       ]),
     ],
   },
-  // three empty groups, same as production. nothing here should render.
   {
     id: 'c-drinks', name: 'Drinks', slug: 'drinks', sort_order: 4, is_active: true,
     groups: [
-      style('g-coldbrew', 'Cold Brew', 'cold-brew', 'c-drinks', 1, []),
-      style('g-milks', 'Milks', 'milks', 'c-drinks', 2, []),
-      style('g-icy', 'Icy Machine', 'icy-machine', 'c-drinks', 3, []),
+      style('g-coldbrew', 'Cold Brew', 'cold-brew', 'c-drinks', 1, [
+        flav('g-coldbrew', 'Nitro Cold Brew', 500, true),
+        flav('g-coldbrew', 'Nitro with Milk', 550, true),
+        flav('g-coldbrew', 'Hot Nitro', 500, false),
+      ]),
+      style('g-milks', 'Milks', 'milks', 'c-drinks', 2, [
+        flav('g-milks', 'Chocolate Milk', 375, true),
+        flav('g-milks', 'Vanilla Milk', 375, true),
+        flav('g-milks', 'Matcha Milk', 475, true),
+        flav('g-milks', 'Coffee Milk', 425, true),
+      ]),
+      style('g-bottled', 'Bottled', 'bottled', 'c-drinks', 3, [
+        flav('g-bottled', 'Banana Water', 425, true),
+        flav('g-bottled', 'Chocolate Banana Water', 425, true),
+      ]),
+      // parked in production too, is_active false, nothing to put in it yet.
+      // an EMPTY group must not render, which is the case this one covers.
+      style('g-icy', 'Icy Machine', 'icy-machine', 'c-drinks', 4, []),
     ],
   },
 ];

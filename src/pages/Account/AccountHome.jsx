@@ -6,6 +6,8 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import ButterMark from '../../components/Brand/ButterMark';
+import CrumbJar from '../../components/Crumbs/CrumbJar';
+import { crumbsFromOrders } from '../../data/crumbs';
 
 function money(c) { return `$${((c || 0) / 100).toFixed(2)}`; }
 function when(iso) {
@@ -35,6 +37,9 @@ export default function AccountHome() {
 
   if (!customer) return null;
 
+  // derived, never stored. see the note in src/data/crumbs.js
+  const crumbs = crumbsFromOrders(orders);
+
   const togglePromos = () => updateProfile({ email_opt_in: !customer.email_opt_in });
 
   const savePassword = async () => {
@@ -57,11 +62,17 @@ export default function AccountHome() {
         <button onClick={signOut} className="text-xs font-medium" style={{ color: 'var(--mb-text-muted)' }}>sign out</button>
       </div>
 
-      <div className="mt-6 rounded-2xl p-4" style={{ border: '1px solid var(--mb-surface-line)' }}>
+      {!loading && (
+        <div className="mt-6">
+          <CrumbJar crumbs={crumbs} />
+        </div>
+      )}
+
+      <div className="mt-3 rounded-2xl p-4" style={{ border: '1px solid var(--mb-surface-line)' }}>
         <label className="flex cursor-pointer items-center justify-between">
-          <span className="text-sm" style={{ color: 'var(--mb-text-secondary)' }}>Send me rewards and promotions</span>
-          <span onClick={togglePromos} className="relative h-6 w-11 rounded-full transition-colors" style={{ background: customer.email_opt_in ? '#7AA85A' : 'var(--mb-surface-line-strong)' }}>
-            <span className="absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform" style={{ transform: customer.email_opt_in ? 'translateX(22px)' : 'translateX(2px)' }} />
+          <span className="text-sm font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>send me rewards and news</span>
+          <span onClick={togglePromos} className="relative h-6 w-11 rounded-full transition-colors" style={{ background: customer.email_opt_in ? 'var(--mb-accent-butter)' : 'var(--mb-surface-line-strong)' }}>
+            <span className="absolute top-0.5 h-5 w-5 rounded-full transition-transform" style={{ background: 'var(--mb-surface-raised)', boxShadow: 'var(--mb-shadow-card)', transform: customer.email_opt_in ? 'translateX(22px)' : 'translateX(2px)' }} />
           </span>
         </label>
       </div>
