@@ -11,7 +11,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test:options": "node netlify/functions/_options.test.mjs"
+    "test:options": "node tests/options.test.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

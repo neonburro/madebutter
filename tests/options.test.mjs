@@ -1,6 +1,21 @@
-// netlify/functions/_options.test.mjs
+// tests/options.test.mjs
 //
 // The add on money rule, run against its attack cases. `yarn test:options`.
+//
+// ── IT CANNOT LIVE BESIDE THE CODE IT TESTS ─────────────────────────────────
+//
+// This started at netlify/functions/_options.test.mjs, next to the function it
+// covers, which is where you would want it. It broke the production deploy.
+//
+// Netlify treats every top level file in the functions directory as a function
+// and takes the function name from the filename, so this one became
+// "_options.test", and a dot is not a legal function name. The build failed
+// with "Incorrect function names. Name should consist of only alphanumeric
+// characters, hyphen & underscores" and nothing shipped.
+//
+// So NOTHING with a dot in its stem goes in netlify/functions, and a test has
+// no business being published as an endpoint anyway. It lives out here and
+// reaches back in for the one function it needs.
 //
 // ── WHY THIS FILE EXISTS AND WHY IT IS THE ONLY TEST IN THE REPO ────────────
 //
@@ -20,7 +35,7 @@
 //
 // No em dashes, oxford commas or colons.
 
-import { priceLine } from './_options.js';
+import { priceLine } from '../netlify/functions/_options.js';
 
 const groups = [
   { id: 'g-milk', name: 'Milk', min_select: 1, max_select: 1, is_active: true },
