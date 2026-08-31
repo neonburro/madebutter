@@ -13,6 +13,8 @@ import { useMenu } from '../../../data/useMenu';
 import { menuImageUrl } from '../../../lib/supabase';
 import { withTax } from '../../../lib/tax';
 import { staffFetch } from '../../../lib/staffFetch';
+import { hasOptions, lineKeyFor, unitPrice, describeOptions } from '../../../data/options';
+import POSOptionSheet from './POSOptionSheet';
 
 const money = (c) => `$${((c || 0) / 100).toFixed(2)}`;
 
@@ -179,17 +181,32 @@ export default function POSRegister() {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [picking, setPicking] = useState(null);
 
-  const subtotal = cart.reduce((n, l) => n + l.item.price * l.qty, 0);
+  // ── LINES ARE ITEM PLUS CHOICES HERE TOO ────────────────────────────────
+  // Same rule as the website's cart, see src/context/CartContext.jsx. Two
+  // nitros with different milks are two lines, so the key is the item plus its
+  // sorted option ids and setQty takes that key rather than an item id.
+  const subtotal = cart.reduce((n, l) => n + l.unit * l.qty, 0);
   const { tax, total } = withTax(subtotal);
 
-  const add = (item) => setCart((c) => {
-    const found = c.find((l) => l.item.id === item.id);
-    if (found) return c.map((l) => l.item.id === item.id ? { ...l, qty: l.qty + 1 } : l);
-    return [...c, { item, qty: 1 }];
+  // Tapping an item with no questions puts it straight in the cart. Only an
+  // item that asks something opens the sheet, because at a register every
+  // avoidable tap is a queue.
+  const onTap = (item) => {
+    if (hasOptions(item)) setPicking(item);
+    else addLine(item, []);
+  };
+
+  const addLine = (item, options) => setCart((c) => {
+    const key = lineKeyFor(item.id, options);
+    const found = c.find((l) => l.key === key);
+    if (found) return c.map((l) => l.key === key ? { ...l, qty: l.qty + 1 } : l);
+    return [...c, { key, item, options: options || [], unit: unitPrice(item, options), qty: 1 }];
   });
-  const setQty = (id, delta) => setCart((c) => c
-    .map((l) => l.item.id === id ? { ...l, qty: l.qty + delta } : l)
+
+  const setQty = (key, delta) => setCart((c) => c
+    .map((l) => l.key === key ? { ...l, qty: l.qty + delta } : l)
     .filter((l) => l.qty > 0));
   const clear = () => setCart([]);
 
@@ -197,7 +214,13 @@ export default function POSRegister() {
     setBusy(true); setError(null);
     try {
       const res = await staffFetch('/.netlify/functions/pos-order', {
-        cart: cart.map((l) => ({ item_id: l.item.id, qty: l.qty })),
+        // ids only, priced again server side by the same priceLine the online
+        // checkout uses. see netlify/functions/_options.js
+        cart: cart.map((l) => ({
+          item_id: l.item.id,
+          qty: l.qty,
+          options: (l.options || []).map((o) => o.id),
+        })),
         payment_method, cash_tendered_cents, phone, first_name,
       });
       const data = await res.json();
@@ -239,7 +262,7 @@ export default function POSRegister() {
       <div className="flex-1 overflow-hidden px-4 py-6 sm:px-8">
         <h1 className="mb-4 text-3xl font-bold" style={{ letterSpacing: 'var(--tracking-heading)' }}>Register</h1>
         <div className="h-[calc(100%-3rem)]">
-          <MenuGrid categories={categories} onAdd={add} />
+          <MenuGrid categories={categories} onAdd={onTap} />
         </div>
       </div>
 
@@ -252,15 +275,22 @@ export default function POSRegister() {
         <div className="flex-1 overflow-y-auto px-5 py-3">
           {cart.length === 0 && <p className="py-10 text-center text-base font-semibold" style={{ color: 'var(--mb-text-muted)' }}>Tap items to add them.</p>}
           {cart.map((l) => (
-            <div key={l.item.id} className="flex items-center justify-between py-3">
+            <div key={l.key} className="flex items-center justify-between gap-3 py-3">
               <div className="min-w-0 flex-1">
-                <p className="truncate text-base font-bold">{l.item.name}</p>
-                <p className="text-sm font-semibold" style={{ color: 'var(--mb-text-muted)' }}>{money(l.item.price)}</p>
+                <p className="text-base font-bold leading-tight">{l.item.name}</p>
+                {/* the choices, so whoever reads this cart back to the customer
+                    is reading the same thing the kitchen ticket will say */}
+                {l.options?.length > 0 && (
+                  <p className="text-sm font-semibold" style={{ color: 'var(--mb-accent-toast)' }}>
+                    {describeOptions(l.options)}
+                  </p>
+                )}
+                <p className="mb-nums text-sm font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>{money(l.unit)}</p>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={() => setQty(l.item.id, -1)} className="flex h-8 w-8 items-center justify-center rounded-full" style={{ background: 'var(--mb-surface-paper)' }}><Minus size={16} /></button>
-                <span className="w-5 text-center text-base font-bold">{l.qty}</span>
-                <button onClick={() => setQty(l.item.id, 1)} className="flex h-8 w-8 items-center justify-center rounded-full" style={{ background: 'var(--mb-surface-paper)' }}><Plus size={16} /></button>
+                <button onClick={() => setQty(l.key, -1)} className="flex h-11 w-11 items-center justify-center rounded-full" style={{ background: 'var(--mb-surface-sunk)' }}><Minus size={18} /></button>
+                <span className="mb-nums w-5 text-center text-base font-bold">{l.qty}</span>
+                <button onClick={() => setQty(l.key, 1)} className="flex h-11 w-11 items-center justify-center rounded-full" style={{ background: 'var(--mb-surface-sunk)' }}><Plus size={18} /></button>
               </div>
             </div>
           ))}
@@ -277,6 +307,8 @@ export default function POSRegister() {
           </div>
         )}
       </div>
+
+      <POSOptionSheet item={picking} onAdd={addLine} onClose={() => setPicking(null)} />
 
       <AnimatePresence>
         {stage !== 'cart' && (

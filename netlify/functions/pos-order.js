@@ -10,6 +10,8 @@ import { adminClient, json, shortCode, requireStaff } from './_shared.js';
 // The rate is shared with the storefront and online checkout rather than copied
 // here by hand. See the note at the top of src/lib/tax.js.
 import { computeTax } from '../../src/lib/tax.js';
+// the same add on rule the online checkout uses. see _options.js.
+import { priceLine } from './_options.js';
 
 export async function handler(event) {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
@@ -34,21 +36,47 @@ export async function handler(event) {
     const { data: dbItems, error: itemsErr } = await db.from('items').select('*').in('id', ids);
     if (itemsErr) throw itemsErr;
 
+    // ── THE REGISTER PRICES ADD ONS THE SAME WAY THE WEBSITE DOES ───────────
+    // Same priceLine, same tables, same rules. Before this, a nitro rung up in
+    // person was charged its BASE price no matter which milk was chosen, so the
+    // upcharge was quietly given away at the counter and nothing recorded which
+    // milk it was. Two rails pricing one menu by two rules is how a register
+    // and a website drift apart.
+    const [linkRes, optRes, groupRes] = await Promise.all([
+      db.from('item_option_groups').select('item_id, option_group_id').in('item_id', ids),
+      db.from('options').select('id, slug, name, price_delta, option_group_id, is_active'),
+      db.from('option_groups').select('id, name, min_select, max_select, is_active'),
+    ]);
+    if (linkRes.error) throw linkRes.error;
+    if (optRes.error) throw optRes.error;
+    if (groupRes.error) throw groupRes.error;
+
     const lineItems = [];
     let subtotal = 0;
     for (const line of cart) {
       const dbItem = (dbItems || []).find((i) => i.id === line.item_id);
       if (!dbItem) return json(400, { error: 'An item is no longer available' });
       const qty = Math.max(1, parseInt(line.qty, 10) || 1);
-      const lineTotal = dbItem.price * qty;
+
+      const priced = priceLine({
+        item: dbItem,
+        submittedOptionIds: line.options,
+        links: linkRes.data || [],
+        options: optRes.data || [],
+        groups: groupRes.data || [],
+      });
+      if (!priced.ok) return json(400, { error: priced.error });
+
+      const lineTotal = priced.unitPrice * qty;
       subtotal += lineTotal;
       lineItems.push({
         item_id: dbItem.id,
         item_slug: dbItem.slug || null,
         item_name: dbItem.name,
-        unit_price_cents: dbItem.price,
+        unit_price_cents: priced.unitPrice,
         qty,
         line_total_cents: lineTotal,
+        options: priced.chosen.length ? priced.chosen : null,
       });
     }
 
