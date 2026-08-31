@@ -38,6 +38,7 @@ import { persistOrder } from './menuActions';
 import ItemEditModal from './ItemEditModal';
 import BulkInventoryModal from './BulkInventoryModal';
 import TodayBoard from './TodayBoard';
+import AddOnsBoard from './AddOnsBoard';
 
 function Toggle({ on, onClick, busy }) {
   return (
@@ -242,9 +243,9 @@ export default function AdminMenu() {
         <div>
           <h1 className="text-4xl font-bold lowercase" style={{ letterSpacing: 'var(--tracking-heading)' }}>menu</h1>
           <p className="mt-2 text-base font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>
-            {view === 'today'
-              ? 'flip what came out of the oven. search to find one fast.'
-              : 'drag the handle to reorder. tap a photo to edit.'}
+            {view === 'today' ? 'flip what came out of the oven. search to find one fast.'
+              : view === 'addons' ? 'the questions an item asks before it goes in the box.'
+                : 'drag the handle to reorder. tap a photo to edit.'}
           </p>
         </div>
         <button
@@ -256,9 +257,10 @@ export default function AdminMenu() {
         </button>
       </div>
 
-      <div className="mt-5 flex gap-2">
+      <div className="mt-5 flex flex-wrap gap-2">
         {tab('today', 'today')}
         {tab('arrange', 'arrange')}
+        {tab('addons', 'add ons')}
       </div>
 
       {toggleError && (
@@ -268,6 +270,11 @@ export default function AdminMenu() {
       {view === 'today' ? (
         <div className="mt-6">
           <TodayBoard cats={cats} setCats={setCats} reload={load} />
+        </div>
+      ) : view === 'addons' ? (
+        <div className="mt-6">
+          {/* a flat list of every item, which is what the attach picker needs */}
+          <AddOnsBoard items={cats.flatMap((c) => c.groups.flatMap((g) => g.items))} />
         </div>
       ) : (
         cats.map((c) => (
