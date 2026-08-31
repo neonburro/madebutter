@@ -50,11 +50,12 @@ export default function MoreFlavorsTile({ items, onOpen }) {
         </div>
       </button>
 
+      {/* same type sizes as ItemCard so the caption row does not step */}
       <div className="mt-2.5 px-1">
-        <p className="mb-nums text-[15px] font-bold leading-tight" style={{ letterSpacing: '-0.01em' }}>
+        <p className="mb-nums text-base font-bold leading-tight" style={{ letterSpacing: '-0.01em' }}>
           {items.length} more
         </p>
-        <p className="mt-0.5 text-sm font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>
+        <p className="mt-0.5 text-[15px] font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>
           not out today
         </p>
       </div>

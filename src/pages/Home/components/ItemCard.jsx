@@ -118,7 +118,7 @@ export default function ItemCard({ item, onOpen }) {
             disabled={capped}
             aria-label={capped ? `${item.name} limit reached` : `Add ${item.name}`}
             whileTap={capped ? {} : { scale: 0.84 }}
-            className="absolute bottom-2 right-2 flex h-10 w-10 items-center justify-center rounded-full"
+            className="absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full"
             style={{
               background: capped ? 'var(--mb-surface-sunk)' : 'var(--mb-accent-butter)',
               color: capped ? 'var(--mb-text-muted)' : 'var(--mb-text-primary)',
@@ -126,7 +126,7 @@ export default function ItemCard({ item, onOpen }) {
               boxShadow: 'var(--mb-shadow-card)',
             }}
           >
-            {capped ? <Check size={18} strokeWidth={2.5} /> : <Plus size={20} strokeWidth={2.5} />}
+            {capped ? <Check size={20} strokeWidth={2.5} /> : <Plus size={22} strokeWidth={2.5} />}
           </motion.button>
         )}
 
@@ -147,13 +147,15 @@ export default function ItemCard({ item, onOpen }) {
         </AnimatePresence>
       </div>
 
-      {/* full contrast whatever the plate is doing */}
+      {/* Full contrast whatever the plate is doing. Sized for older eyes on a
+          phone, which is most of who reads this, so 16px name and 15px price
+          rather than the 15 and 14 it was. */}
       <div className="mt-2.5 px-1">
-        <p className="text-[15px] font-bold leading-tight" style={{ letterSpacing: '-0.01em' }}>
+        <p className="text-base font-bold leading-tight" style={{ letterSpacing: '-0.01em' }}>
           {item.name}
         </p>
         {item.price != null && item.price > 0 && (
-          <p className="mb-nums mt-0.5 text-sm font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>
+          <p className="mb-nums mt-0.5 text-[15px] font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>
             {formatPrice(item.price)}
           </p>
         )}

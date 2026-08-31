@@ -158,4 +158,14 @@ export const SEED_CATEGORIES = [
   },
 ];
 
+// The about_section row, for the same reason the menu above exists. Without it
+// the band under the hero rendered only its live board in dev and the copy half
+// was invisible, so nobody could style the heading without production
+// credentials. Production reads the real row and this is never used there.
+export const SEED_ABOUT = {
+  id: 1,
+  heading: 'part bakery, part product lab.',
+  body: 'we bake a short list every morning and change most of it by the next one. what is below is what is actually out today.',
+};
+
 export default SEED_CATEGORIES;

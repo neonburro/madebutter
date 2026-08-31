@@ -35,6 +35,7 @@
 
 @import "tailwindcss";
 @import "@fontsource-variable/inter";
+@import "@fontsource-variable/fraunces";
 
 :root {
   /* surfaces, in depth order. base is furthest, raised is nearest. */
@@ -111,7 +112,21 @@
   --color-dark-text: var(--mb-dark-text);
   --color-dark-accent: var(--mb-dark-accent);
 
+  /* ── TWO FACES, AND THE JOB EACH ONE DOES ────────────────────────────────
+     Fraunces is the DISPLAY face and it earns its place by being the only warm
+     thing in the type. It is a soft serif with an optical size axis, so it gets
+     rounder and friendlier as it gets bigger, which is exactly what a heading
+     over a case of donuts should do. It goes on headings and nowhere else.
+
+     Inter stays for everything a person has to READ or OPERATE. Prices, labels,
+     buttons, the whole admin. Its digits line up, it holds at small sizes, and
+     it does not editorialise, which is what you want on a number somebody is
+     about to be charged.
+
+     The rule is short. If it is a heading it is display. If it is information
+     it is sans. A price is never display. */
   --font-sans: "Inter Variable", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: "Fraunces Variable", "Iowan Old Style", Georgia, serif;
 
   --tracking-logo: -0.035em;
   --tracking-heading: -0.025em;
@@ -129,12 +144,80 @@ body {
   background: var(--mb-surface-base);
   color: var(--mb-text-primary);
   font-family: var(--font-sans);
+  /* ── THE BASE WEIGHT IS 450, NOT 400 ──────────────────────────────────────
+     The owner's note was that the subheadings and paragraphs looked skinny
+     next to the titles, and he was reading a real problem. Inter at 400 beside
+     a 700 heading is a big enough jump that the body reads as faint rather than
+     as quiet, and it gets worse on a warm ground than it would on white because
+     the contrast is already softer. 450 closes the gap without making the page
+     feel shouted, and it helps the older eyes this shop is also for. */
+  font-weight: 450;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
+/* ── THE DISPLAY FACE ───────────────────────────────────────────────────────
+   Headings only, never a price. See the note on --font-display above.
+
+   ── WHY THE WEIGHT AXIS ONLY ──────────────────────────────────────────────
+   Fraunces ships four axes and its showy ones are opsz, which warms the shapes
+   as they get bigger, and SOFT and WONK, which are its character. They are all
+   real and none of them are here, because the axis subsets cost what they cost:
+
+     wght only     36KB   what we load
+     soft          61KB
+     opsz          66KB
+     all four     118KB
+
+   This is a phone first shop and the heading sits near the top of the page, so
+   82KB to make a serif slightly rounder is a bad trade against a person on a
+   valley connection waiting to see the menu. Fraunces at 600 still reads as
+   Fraunces.
+
+   Do NOT add font-variation-settings for SOFT, WONK or opsz to this rule. The
+   file we load has no such axes and the declarations would be silently ignored,
+   which is worse than not writing them: the next person reads the CSS and
+   believes the page is doing something it is not. If the axes are ever wanted,
+   change the @import at the top of this file to the matching subset in the same
+   commit. */
+.mb-display {
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-heading);
+}
+
 /* Prices and counts sit in columns and must not wobble between values. */
 .mb-nums { font-variant-numeric: tabular-nums; }
+
+/* ── KEYBOARD FOCUS ─────────────────────────────────────────────────────────
+   There was none. Every control on the site relied on the browser default,
+   which Tailwind's reset removes, so tabbing through the menu moved an
+   invisible cursor. focus-visible rather than focus, so a mouse click does not
+   paint a ring but a tab key does. */
+:where(a, button, input, select, textarea, [role="button"]):focus-visible {
+  outline: 2px solid var(--mb-accent-toast);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ── TAP TARGETS ────────────────────────────────────────────────────────────
+   44px is the floor, which is the documented size of an adult fingertip and the
+   number both Apple and the WCAG target-size rule land on. The owner asked for
+   this to work for older hands as much as younger ones, and a 32px control is
+   the single most common reason a person taps a thing three times.
+
+   Use this on a control whose VISUAL size is meant to stay small. It keeps the
+   painted size and grows the hit area past the edge, so a 32px looking button
+   still catches a 44px press. */
+.mb-tap { position: relative; }
+.mb-tap::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
 
 /* ── THE HORIZONTAL RAIL ────────────────────────────────────────────────────
    Used by the style rails on the menu. Scrollbar hidden HERE and only here.

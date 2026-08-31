@@ -101,8 +101,8 @@ export default function CartSheet({ open, onClose }) {
                           </div>
 
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-bold">{l.name}</p>
-                            <p className="mb-nums text-xs font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>
+                            <p className="truncate text-[15px] font-bold">{l.name}</p>
+                            <p className="mb-nums text-sm font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>
                               {l.price > 0 ? formatPrice(l.price * l.qty) : ''}
                             </p>
                           </div>
@@ -112,7 +112,7 @@ export default function CartSheet({ open, onClose }) {
                               whileTap={{ scale: 0.85 }}
                               onClick={() => decrement(l.id)}
                               aria-label={`Remove one ${l.name}`}
-                              className="flex h-8 w-8 items-center justify-center rounded-full"
+                              className="flex h-11 w-11 items-center justify-center rounded-full"
                               style={{ border: '1px solid var(--mb-surface-line-strong)' }}
                             >
                               <Minus size={15} />
@@ -122,7 +122,7 @@ export default function CartSheet({ open, onClose }) {
                               whileTap={{ scale: 0.85 }}
                               onClick={() => add(l)}
                               aria-label={`Add one ${l.name}`}
-                              className="flex h-8 w-8 items-center justify-center rounded-full"
+                              className="flex h-11 w-11 items-center justify-center rounded-full"
                               style={{ background: 'var(--mb-accent-butter)' }}
                             >
                               <Plus size={15} />

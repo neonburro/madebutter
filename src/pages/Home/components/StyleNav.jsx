@@ -88,7 +88,7 @@ export default function StyleNav({ sections }) {
               key={s.id}
               ref={(el) => { chipRefs.current[s.slug] = el; }}
               onClick={() => document.getElementById(`style-${s.slug}`)?.scrollIntoView({ behavior: 'smooth' })}
-              className="flex-shrink-0 rounded-full px-4 py-2 text-sm font-bold lowercase"
+              className="flex min-h-[44px] flex-shrink-0 items-center rounded-full px-4 text-[15px] font-bold lowercase"
               style={{
                 background: isActive ? 'var(--mb-accent-butter)' : 'transparent',
                 color: isActive ? 'var(--mb-text-primary)' : 'var(--mb-text-secondary)',

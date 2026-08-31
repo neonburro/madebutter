@@ -40,12 +40,14 @@ export default function MenuSection({ section, showCategory, onOpen }) {
           </p>
         )}
 
+        {/* the style name is the display face, the count beside it is not. a
+            number is information and information stays in Inter. */}
         <div className="flex items-baseline gap-3 px-1">
-          <h2 className="text-3xl font-bold sm:text-4xl" style={{ letterSpacing: 'var(--tracking-heading)' }}>
+          <h2 className="mb-display text-3xl font-semibold sm:text-4xl">
             {section.name}
           </h2>
           {today.length > 0 && (
-            <span className="mb-nums text-sm font-semibold" style={{ color: 'var(--mb-text-muted)' }}>
+            <span className="mb-nums text-sm font-semibold" style={{ color: 'var(--mb-text-secondary)' }}>
               {today.length} today
             </span>
           )}
@@ -70,7 +72,15 @@ export default function MenuSection({ section, showCategory, onOpen }) {
             )}
           </div>
         ) : (
-          <div className="mt-5 grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-4 sm:gap-y-9 md:grid-cols-3 lg:grid-cols-5">
+          // ── THE LADDER OF COLUMNS ──────────────────────────────────────
+          // 2 on a phone, 3 from a large phone through an iPad in portrait, 4
+          // on an iPad in landscape, 5 on a desktop. It used to jump 3 to 5 at
+          // 1024, which is exactly an iPad turned sideways, so the tablet got
+          // desktop density on a tablet sized hand. The extra step at xl is what
+          // keeps a landscape iPad card the same physical size as a portrait
+          // one. Narrow iPad multitasking windows fall back to the 2 column
+          // case on their own, since this reads the WINDOW and not the device.
+          <div className="mt-5 grid grid-cols-2 gap-x-3 gap-y-7 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-9 lg:grid-cols-4 xl:grid-cols-5">
             {today.map((item) => (
               <ItemCard key={item.id} item={item} onOpen={onOpen} />
             ))}

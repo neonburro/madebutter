@@ -73,7 +73,20 @@ export default function TopNav() {
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
-      setAtTop(y < 12);
+
+      // ── WHEN THE BAR STOPS BEING TRANSPARENT ────────────────────────────
+      // It used to go solid after twelve pixels, which meant the glass lasted
+      // about one flick of a thumb and the hero was behind a panel for the
+      // whole rest of its height. It now stays transparent across everything
+      // ABOVE the food and turns solid at the moment the menu reaches it.
+      //
+      // #menu-start is the marker, rendered by src/pages/Home/index.jsx right
+      // where the style rail begins. Any page without one, contact and the
+      // legal pages, falls back to the old twelve pixel rule, which is correct
+      // for a page that opens on text rather than on a picture.
+      const gate = document.getElementById('menu-start');
+      setAtTop(gate ? gate.getBoundingClientRect().top > (heightRef.current || 0) : y < 12);
+
       if (y > lastY.current && y > 90) setHidden(true);
       else setHidden(false);
       lastY.current = y;

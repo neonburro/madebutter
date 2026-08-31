@@ -7,8 +7,9 @@
 // (card = tapped in the Stripe app, marked paid here). Returns receipt + change due.
 // Last updated 2026-06-27.
 import { adminClient, json, shortCode, requireStaff } from './_shared.js';
-
-const TAX_RATE = 0.0905; // keep in sync with src/lib/tax.js
+// The rate is shared with the storefront and online checkout rather than copied
+// here by hand. See the note at the top of src/lib/tax.js.
+import { computeTax } from '../../src/lib/tax.js';
 
 export async function handler(event) {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
@@ -51,7 +52,7 @@ export async function handler(event) {
       });
     }
 
-    const tax = Math.round(subtotal * TAX_RATE);
+    const tax = computeTax(subtotal);
     const total = subtotal + tax;
     if (total <= 0) return json(400, { error: 'Order total must be greater than zero' });
 

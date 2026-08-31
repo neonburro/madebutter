@@ -4,8 +4,9 @@
 // PaymentIntent carrying only the order id in metadata (no size limit).
 import Stripe from 'stripe';
 import { adminClient, json, shortCode } from './_shared.js';
-
-const TAX_RATE = 0.0905; // Ridgway CO sales tax. Keep in sync with src/lib/tax.js and pos-order.js
+// The rate is shared with the storefront and the register rather than copied
+// here by hand. See the note at the top of src/lib/tax.js.
+import { computeTax } from '../../src/lib/tax.js';
 
 export async function handler(event) {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
@@ -62,7 +63,7 @@ export async function handler(event) {
       return json(409, { error: 'stock_changed', shortfalls });
     }
 
-    const tax = Math.round(subtotal * TAX_RATE);
+    const tax = computeTax(subtotal);
     const total = subtotal + tax;
     if (total <= 0) return json(400, { error: 'Order total must be greater than zero' });
 

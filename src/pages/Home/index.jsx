@@ -48,7 +48,14 @@ export default function Home() {
       <TopNav />
 
       <Hero onOrder={scrollToMenu} onSuggest={scrollToMenu} />
-      <AboutSection />
+      {/* the band under the hero is a live board of what is out today, built
+          from the same sections as the grid below so the two cannot disagree */}
+      <AboutSection sections={sections} />
+
+      {/* Where the food starts. TopNav.jsx watches this to decide when to stop
+          being transparent, so the bar is glass over the hero and the about
+          band and solid from here down. Moving it moves that moment. */}
+      <div id="menu-start" aria-hidden="true" />
 
       {jumpable.length > 0 && <StyleNav sections={jumpable} />}
 
