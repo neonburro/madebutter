@@ -102,9 +102,9 @@ export default function Hero({ onOrder }) {
                   <button
                     onClick={() => onOrder?.()}
                     className="mt-4 rounded-full px-7 py-3 text-sm font-semibold transition-transform active:scale-[0.98]"
-                    style={{ background: '#161412', color: '#F5D66B' }}
+                    style={{ background: 'var(--mb-text-primary)', color: 'var(--mb-accent-butter)' }}
                   >
-                    See the menu
+                    see the menu
                   </button>
                 </motion.div>
               </AnimatePresence>

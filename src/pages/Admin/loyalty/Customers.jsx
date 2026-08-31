@@ -88,7 +88,7 @@ function OrderDrawer({ order, onClose, onRefunded, onReceiptSent }) {
     <AnimatePresence>
       {order && (
         <>
-          <motion.div className="fixed inset-0 z-[80]" style={{ background: 'rgba(15,14,13,0.4)' }}
+          <motion.div className="fixed inset-0 z-[80]" style={{ background: 'var(--mb-scrim)' }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
           <motion.div
             className="fixed inset-y-0 right-0 z-[80] flex w-full max-w-md flex-col overflow-y-auto p-6"
@@ -195,7 +195,7 @@ function CustomerDetail({ customer, onClose, onOrderChanged }) {
     <AnimatePresence>
       {customer && (
         <>
-          <motion.div className="fixed inset-0 z-[75]" style={{ background: 'rgba(15,14,13,0.4)' }}
+          <motion.div className="fixed inset-0 z-[75]" style={{ background: 'var(--mb-scrim)' }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
           <motion.div
             className="fixed inset-y-0 right-0 z-[75] flex w-full max-w-lg flex-col overflow-y-auto p-6"

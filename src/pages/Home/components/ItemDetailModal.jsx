@@ -12,7 +12,7 @@ export default function ItemDetailModal({ item, onClose }) {
         <>
           <motion.div
             className="fixed inset-0 z-[60]"
-            style={{ background: 'rgba(15,14,13,0.45)' }}
+            style={{ background: 'var(--mb-scrim)' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

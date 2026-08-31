@@ -1,47 +1,100 @@
 /* src/index.css */
-/* madebutter. global styles + Tailwind v4 theme.
-   CSS variables below mirror src/theme/madebutterColors.js exactly.
-   The @theme block maps them into Tailwind utilities. */
+/* madebutter. global styles plus the Tailwind v4 theme.
+   The @theme block maps these variables into Tailwind utilities.
+
+   ── THE GROUND IS PAPER, NOT WHITE ─────────────────────────────────────────
+   This used to be pure #FFFFFF page, #FAF8F2 cards. Two problems came out of
+   that. A card is meant to read as an object sitting ON the page, and a card
+   four percent off the page colour does not read as anything, so every plate
+   with no photo on it looked like a hole in the layout. And pure white next to
+   a near black ink is a harsh pairing for a bakery, which is a warm room.
+
+   So the ground is warm paper and cards are WHITE, lifting off it. That is the
+   inversion, and it is the single decision the rest of this file follows from:
+   surfaces get lighter as they come toward you. base is the page, raised is a
+   card, sunk is a well cut into the page such as an image plate waiting on a
+   photo. If you add a surface, put it in that order or the depth stops
+   reading.
+
+   ── THE BLACK IS BROWN ─────────────────────────────────────────────────────
+   Ink is #33281C, a warm cocoa, not the old #161412. Same job, and against
+   paper it still clears 12:1, so nothing about legibility is being traded. A
+   true black on a warm ground reads as a different design system bolted on.
+
+   ── ONE YELLOW, SPENT ON STATE ─────────────────────────────────────────────
+   Butter is the only accent and its job is to mark what is live: the thing you
+   are on, the thing in your box, the thing you press. Toast is NOT a second
+   accent, it is the warning colour, and it appears on low stock and nowhere
+   decorative. If a yellow shows up somewhere that is not a state, it is
+   decoration and it is diluting every other yellow on the screen.
+
+   Category colours are for donut styles, they are not brand colours, and they
+   only ever appear as a small mark next to a style name.
+
+   No em dashes, oxford commas or colons. */
 
 @import "tailwindcss";
 @import "@fontsource-variable/inter";
 
 :root {
-  --mb-surface-base: #FFFFFF;
-  --mb-surface-paper: #FAF8F2;
-  --mb-surface-cream: #FFF7E6;
-  --mb-surface-raised: #F5F1E8;
-  --mb-surface-line: rgba(22,20,18,0.08);
-  --mb-surface-line-strong: rgba(22,20,18,0.16);
+  /* surfaces, in depth order. base is furthest, raised is nearest. */
+  --mb-surface-base: #FAF6EC;
+  --mb-surface-raised: #FFFFFF;
+  --mb-surface-sunk: #F0E7D4;
+  --mb-surface-paper: #F5EFE1;
+  --mb-surface-cream: #FFF8E8;
+  --mb-surface-line: rgba(51,40,28,0.10);
+  --mb-surface-line-strong: rgba(51,40,28,0.20);
 
-  --mb-text-primary: #161412;
-  --mb-text-secondary: #5E554C;
-  --mb-text-muted: #9A9188;
-  --mb-text-inverse: #FFFFFF;
+  /* ink. muted is for decoration only, never for a label you must read. */
+  --mb-text-primary: #33281C;
+  --mb-text-secondary: #6E6152;
+  --mb-text-muted: #8A7C67;
+  --mb-text-inverse: #FFFDF7;
 
-  --mb-accent-butter: #F6D66B;
-  --mb-accent-butter-hover: #F2B94B;
-  --mb-accent-butter-soft: #FFF1B8;
-  --mb-accent-toast: #B8792D;
+  --mb-accent-butter: #F7CE45;
+  --mb-accent-butter-hover: #EFB92B;
+  --mb-accent-butter-soft: #FDEEBF;
+  --mb-accent-toast: #B0722A;
 
-  --mb-dark-base: #0F0E0D;
-  --mb-dark-raised: #1A1714;
-  --mb-dark-line: rgba(255,255,255,0.10);
-  --mb-dark-text: #FFFDF8;
-  --mb-dark-muted: #C9BFAF;
-  --mb-dark-accent: #FFE08A;
+  /* the dark end, used by the footer. lifted off black for the same reason
+     the ink was: a warm room does not have a black wall in it. */
+  --mb-dark-base: #2A211A;
+  --mb-dark-raised: #372C22;
+  --mb-dark-line: rgba(255,255,255,0.12);
+  --mb-dark-text: #FFFDF7;
+  --mb-dark-muted: #C6B8A2;
+  --mb-dark-accent: #F7CE45;
 
-  --mb-cat-donuts: #F6D66B;
-  --mb-cat-kolaches: #B8792D;
-  --mb-cat-rolls: #D99A4E;
-  --mb-cat-vegan: #A8B89A;
+  /* donut styles. a dot beside a style name, nothing larger. */
+  --mb-cat-donuts: #F7CE45;
+  --mb-cat-kolaches: #B0722A;
+  --mb-cat-rolls: #D0954C;
+  --mb-cat-drinks: #8FA8B8;
+
+  /* The dim behind every sheet, drawer and popup. It was rgba(15,14,13,...) in
+     nine files at three different opacities, which is three slightly different
+     rooms depending on which thing you opened. One token, warm to match the
+     ground, and modals stop disagreeing with each other. */
+  --mb-scrim: rgba(42,33,26,0.45);
+
+  --mb-radius-card: 20px;
+  --mb-radius-plate: 24px;
+  --mb-radius-pill: 999px;
+
+  /* two elevations and that is all. flat, or lifted while you touch it. */
+  --mb-shadow-card: 0 1px 2px rgba(51,40,28,0.05), 0 6px 16px rgba(51,40,28,0.05);
+  --mb-shadow-lift: 0 2px 4px rgba(51,40,28,0.06), 0 14px 32px rgba(51,40,28,0.11);
+
+  --mb-ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @theme {
   --color-surface-base: var(--mb-surface-base);
+  --color-surface-raised: var(--mb-surface-raised);
+  --color-surface-sunk: var(--mb-surface-sunk);
   --color-surface-paper: var(--mb-surface-paper);
   --color-surface-cream: var(--mb-surface-cream);
-  --color-surface-raised: var(--mb-surface-raised);
 
   --color-ink: var(--mb-text-primary);
   --color-ink-secondary: var(--mb-text-secondary);
@@ -80,4 +133,37 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-::-webkit-scrollbar { width: 0; height: 0; }
+/* Prices and counts sit in columns and must not wobble between values. */
+.mb-nums { font-variant-numeric: tabular-nums; }
+
+/* ── THE HORIZONTAL RAIL ────────────────────────────────────────────────────
+   Used by the style rails on the menu. Scrollbar hidden HERE and only here.
+   It used to be killed globally, which also took the page scrollbar with it,
+   so on a desktop you lost the one indicator that tells you how much menu is
+   left. On a sixty five item menu that is the worst possible thing to remove. */
+.mb-rail {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+}
+.mb-rail::-webkit-scrollbar { width: 0; height: 0; }
+.mb-rail > * { scroll-snap-align: start; }
+
+/* Anything that scrolls to a heading has to clear BOTH sticky bars, the top
+   nav at up to 80px and the style rail at 58px. This is one flat number rather
+   than a calc on --mb-nav-offset because scrollIntoView resolves scroll-margin
+   once, at the moment of the jump, while that variable is still animating to
+   its new value, so the calc would land on whichever number it caught. Erring
+   high just leaves a little air above the heading. */
+.mb-anchor { scroll-margin-top: 140px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

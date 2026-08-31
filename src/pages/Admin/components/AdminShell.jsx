@@ -35,7 +35,7 @@ function LoyaltySlideout({ open, onClose }) {
     <AnimatePresence>
       {open && (
         <>
-          <motion.div className="fixed inset-0 z-[70]" style={{ background: 'rgba(15,14,13,0.35)' }}
+          <motion.div className="fixed inset-0 z-[70]" style={{ background: 'var(--mb-scrim)' }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
           <motion.div
             className="fixed inset-y-0 left-0 z-[70] flex w-80 max-w-[85%] flex-col p-6 sm:left-64"

@@ -9,22 +9,32 @@ export function getStripe() {
   return stripePromise;
 }
 
-// Payment Element theme — butter/ink with a matcha-whisper focus ring.
+// Payment Element theme, ink and paper with a matcha whisper on focus.
+//
+// THESE HEXES ARE COPIES AND THEY HAVE TO BE. The Payment Element renders in a
+// cross origin iframe, so it cannot see the site's CSS variables and every
+// value has to be passed in literally. That makes this the one file that goes
+// stale silently when the palette moves, because nothing here breaks, the
+// checkout just quietly stops matching the shop.
+//
+// Each value below names the token in src/index.css it is a copy of. If you
+// change a token there, change its twin here in the same commit.
 export const stripeAppearance = {
   theme: 'flat',
   variables: {
-    colorPrimary: '#161412',
-    colorBackground: '#FFFFFF',
-    colorText: '#161412',
-    colorTextSecondary: '#5E554C',
-    colorDanger: '#B8792D',
+    colorPrimary: '#33281C',        // --mb-text-primary
+    colorBackground: '#FFFFFF',     // --mb-surface-raised
+    colorText: '#33281C',           // --mb-text-primary
+    colorTextSecondary: '#6E6152',  // --mb-text-secondary
+    colorDanger: '#B0722A',         // --mb-accent-toast
     fontFamily: '"Inter Variable", -apple-system, BlinkMacSystemFont, sans-serif',
     borderRadius: '14px',
     spacingUnit: '4px',
   },
   rules: {
-    '.Input': { border: '1px solid rgba(22,20,18,0.16)', boxShadow: 'none', padding: '12px' },
+    // rgba(51,40,28,0.20) is --mb-surface-line-strong
+    '.Input': { border: '1px solid rgba(51,40,28,0.20)', boxShadow: 'none', padding: '12px' },
     '.Input:focus': { border: '1px solid #A8B89A', boxShadow: '0 0 0 3px rgba(168,184,154,0.25)' },
-    '.Label': { color: '#5E554C', fontWeight: '500' },
+    '.Label': { color: '#6E6152', fontWeight: '500' },
   },
 };

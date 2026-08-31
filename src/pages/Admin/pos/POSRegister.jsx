@@ -281,7 +281,7 @@ export default function POSRegister() {
       <AnimatePresence>
         {stage !== 'cart' && (
           <>
-            <motion.div className="fixed inset-0 z-[80]" style={{ background: 'rgba(15,14,13,0.45)' }}
+            <motion.div className="fixed inset-0 z-[80]" style={{ background: 'var(--mb-scrim)' }}
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => stage === 'pay' && setStage('cart')} />
             <motion.div

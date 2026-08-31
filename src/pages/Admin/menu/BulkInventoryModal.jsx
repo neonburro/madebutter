@@ -59,7 +59,7 @@ export default function BulkInventoryModal({ open, onClose, onSaved }) {
     <AnimatePresence>
       {open && (
         <>
-          <motion.div className="fixed inset-0 z-[80]" style={{ background: 'rgba(15,14,13,0.45)' }}
+          <motion.div className="fixed inset-0 z-[80]" style={{ background: 'var(--mb-scrim)' }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
           <div className="fixed inset-0 z-[80] flex items-end justify-center sm:items-center sm:p-6" onClick={onClose}>
             <motion.div
