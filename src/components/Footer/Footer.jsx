@@ -153,28 +153,32 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* ── THE STAMP ────────────────────────────────────────────────────────
-          The name at full width, the last thing on the page.
+      {/* ── THE SIGN OFF ─────────────────────────────────────────────────────
+          The name, last thing on the page.
 
-          15vw IS LOAD BEARING, DO NOT RAISE IT. "madebutter." rendered in this
-          weight with this tracking is 5.58 times as wide as its font size, and
-          the rail it sits in is 92% of the viewport. So the widest it can be set
-          is 92 / 5.58, which is 16.4vw, and 15vw leaves a little air for a font
-          that falls back or a tracking that gets adjusted.
+          IT WAS A BILLBOARD AND THAT WAS THE WRONG CALL. It ran at
+          clamp(3rem, 15vw, 15rem), so 219px on a laptop, and the whole footer
+          bent around it. The idea was a stamp on the side of a box. In practice
+          a wordmark that size stops being a sign off and becomes the content,
+          and everything above it, the counter line, the address, the list
+          signup, reads as small print underneath a logo.
 
-          It was 17vw first, which needs 95% of the viewport to draw. It looked
-          correct only because the 15rem cap happened to rescue it at the width
-          it was checked at, and it overflowed on every screen narrower than
-          about 1450px. Measure the rendered glyph width against the rail before
-          changing either number. */}
-      <div className="mx-auto mt-16 w-[92%] max-w-[1680px]">
+          It also never actually reached the rail, so it did not even read as
+          deliberate. It read as text somebody set too large.
+
+          The ceiling is 4.5rem, 72px, which is about the height of the two
+          stacked lines beside it and sits in proportion to a footer roughly
+          500px tall. Big enough to close the page, small enough that the
+          content above it is still the point. Raising this is how it becomes a
+          billboard again. */}
+      <div className="mx-auto mt-12 w-[92%] max-w-[1680px]">
         <Link
           to="/"
           aria-label="madebutter. home"
-          className="block font-bold lowercase leading-[0.85]"
+          className="inline-block font-bold lowercase leading-[0.9]"
           style={{
             letterSpacing: 'var(--tracking-logo)',
-            fontSize: 'clamp(3rem, 15vw, 15rem)',
+            fontSize: 'clamp(2.25rem, 6vw, 4.5rem)',
           }}
         >
           madebutter<span style={{ color: 'var(--mb-accent-butter)' }}>.</span>
@@ -183,7 +187,7 @@ export default function Footer() {
 
       <div className="mx-auto w-[92%] max-w-[1680px]">
         <div
-          className="mt-10 flex flex-col gap-2 border-t py-7 text-sm lowercase sm:flex-row sm:items-center sm:justify-between"
+          className="mt-8 flex flex-col gap-2 border-t py-7 text-sm lowercase sm:flex-row sm:items-center sm:justify-between"
           style={{ borderColor: 'var(--mb-dark-line)', color: 'var(--mb-dark-muted)' }}
         >
           <span>© {new Date().getFullYear()} madebutter. a burroship brand.</span>
